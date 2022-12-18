@@ -19,7 +19,7 @@ class Ui_Dialog(object):
         font.setPointSize(8)
         Dialog.setFont(font)
         self.card_number = QtWidgets.QLabel(Dialog)
-        self.card_number.setGeometry(QtCore.QRect(10, 10, 31, 31))
+        self.card_number.setGeometry(QtCore.QRect(10, 10, 61, 31))
         font = QtGui.QFont()
         font.setPointSize(15)
         self.card_number.setFont(font)

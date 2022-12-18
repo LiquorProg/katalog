@@ -1,12 +1,11 @@
 from PyQt5 import QtSql
+from PyQt5.QtSql import QSqlTableModel
 from PyQt5.QtWidgets import QApplication
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-import data_base
-from data_base import *
 from MainForm import Ui_MainWindow
 from case_record import Ui_Dialog
-
+import sqlite3
 import sys
 
 
@@ -17,12 +16,10 @@ def otherWindow(): #Карточка пациента
     ui.setupUi(Dialog)
     Dialog.show()
 
-    query = QSqlQuery()
-    print(query.exec_("select max(patients_id) from patients"))
-
-    new_cart_numb = query.next()
-    print(new_cart_numb)
-    ui.card_number.setText(f"№{new_cart_numb}")
+    """Автонумирование для новой карточки пациента"""
+    cursor.execute("select max(patients_id) from patients")
+    result = cursor.fetchall()
+    ui.card_number.setText(f'№{result[0][0]+1}')
 
     """Внесение всей информации из ячеек в базу данных и закрытие окна"""
     def savePat():
@@ -31,11 +28,11 @@ def otherWindow(): #Карточка пациента
         print(affil := ui.affiliation.text())
         print(mobile := ui.mobile_1.text())
         print(house_numb := ui.house_number.text())
-        query = QSqlQuery()
-        query.exec_(f"INSERT INTO patients(full_name, age, info, street, affiliation, mobile_1, house_numb) VALUES('masha', 34, '{info}', '{street}', '{affil}', '{mobile}', {house_numb})")
+        cursor.execute(f"""INSERT INTO patients(full_name, age, info, street, affiliation, mobile_1, house_numb) VALUES('dasha', 34, '{info}', '{street}', '{affil}', '{mobile}', {house_numb})""")
+        db.commit()
         Dialog.close()
 
-    ui.saveButton.clicked.connect(savePat)
+    ui.saveButton.clicked.connect(savePat)#Кнопка сохранения информациия занесённой в ячейках в базу данных
 
 def katalog(): #Главная страница со списком карточек
     app = QtWidgets.QApplication(sys.argv)
@@ -57,29 +54,7 @@ def katalog(): #Главная страница со списком карточ
 
     sys.exit(app.exec())
 
-# def katalog():
-#     Form, Window = uic.loadUiType("MainForm.ui")
-#
-#     app = QApplication(sys.argv)
-#
-#     """Главное окно"""
-#     window = Window()
-#
-#     form = Form()
-#     form.setupUi(window)
-#
-#     # def on_click():
-#     #     case_record()
-#     #
-#     # form.pushButton.clicked.connect(on_click)
-#
-#     """Связывание таблици базы данных с обьектом 'tableView' и сортирока по столбцам"""
-#     form.tableView.setModel(Patients)
-#     form.columnView.setModel(Patients)
-#     form.tableView.setSortingEnabled(True)
-#
-#     window.show()
-#     sys.exit(app.exec())
-
 if __name__ == '__main__':
-    katalog() #Main_window
+    with sqlite3.connect('data_bases/data.db') as db:
+        cursor = db.cursor()
+        katalog()
