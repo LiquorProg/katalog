@@ -53,6 +53,8 @@ def katalog(): #Главная страница со списком карточ
 
     ui.pushButton.clicked.connect(otherWindow) #Подключение к кнопке открытие нового окна
 
+    sys.exit(app.exec())
+
 if __name__ == '__main__':
     with sqlite3.connect('data_bases/data.db') as db:
         cursor = db.cursor()
