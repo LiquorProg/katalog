@@ -16,6 +16,13 @@ def otherWindow(): #Карточка пациента
     ui.setupUi(Dialog)
     Dialog.show()
 
+    ui.comboBox_streets.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])#Комбобокс с вариантами назв. улиц
+
+    # def proverkaBox():
+    #     print(type(ui.comboBox_streets.currentText()))
+    #
+    # ui.proverka.clicked.connect(proverkaBox)
+
     """Автонумирование для новой карточки пациента"""
     cursor.execute("select max(patients_id) from patients")
     result = cursor.fetchall()
@@ -23,12 +30,15 @@ def otherWindow(): #Карточка пациента
 
     """Внесение всей информации из ячеек в базу данных и закрытие окна"""
     def savePat():
+        print(name := ui.pat_name.text())
         print(info := ui.general_chatacteristics.toPlainText())
         print(street := ui.street_name.text())
         print(affil := ui.affiliation.text())
         print(mobile := ui.mobile_1.text())
         print(house_numb := ui.house_number.text())
-        cursor.execute(f"""INSERT INTO patients(full_name, age, info, street, affiliation, mobile_1, house_numb) VALUES('dasha', 34, '{info}', '{street}', '{affil}', '{mobile}', {house_numb})""")
+        print(street_t := ui.comboBox_streets.currentText())
+        cursor.execute(f"""INSERT INTO patients(full_name, info, street, affiliation, mobile_1, house_numb, street_type) 
+                        VALUES('{name}', '{info}', '{street}', '{affil}', '{mobile}', {house_numb}, '{street_t}')""")
         db.commit()
         Dialog.close()
 
@@ -42,17 +52,6 @@ def katalog(): #Главная страница со списком карточ
     MainWindow.show()
 
     ui.pushButton.clicked.connect(otherWindow) #Подключение к кнопке открытие нового окна
-
-    """Создание екземляра класса QSqlTableModel, установка таблицы patients"""
-    Patients = QSqlTableModel()
-    Patients.setTable('patients')
-    Patients.select()
-
-    """Связывание таблици базы данных с обьектом 'tableView' и сортирока по столбцам"""
-    ui.tableView.setModel(Patients)
-    ui.tableView.setSortingEnabled(True)
-
-    sys.exit(app.exec())
 
 if __name__ == '__main__':
     with sqlite3.connect('data_bases/data.db') as db:
