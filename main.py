@@ -118,17 +118,22 @@ def katalog(): #Главная страница со списком карточ
         ui.tableWidget.setRowCount(len(result))
         for row, items in enumerate(result):
             for index, item in enumerate(items):
-                ui.tableWidget.setItem(row, index, QtWidgets.QTableWidgetItem(str(item)))
+                item = str(item)
+                if item.isnumeric():
+                    ui.tableWidget.setItem(row, index, QtWidgets.QTableWidgetItem((' '*9+str(item))[-9:]))
+                else:
+                    ui.tableWidget.setItem(row, index, QtWidgets.QTableWidgetItem(str(item)))
 
             """Создание и добавление кнопки в таблицу на открытие карточки пациента"""
             button = QtWidgets.QPushButton('Review')
             button.clicked.connect(lambda sh, id=items[0]: otherWindow_2(id))
             ui.tableWidget.setCellWidget(row, 4, button)
+        ui.tableWidget.setSortingEnabled(False)
 
     updateTable()
-    # ui.tableWidget.sortItems(0, QtCore.Qt.AscendingOrder)
     ui.updateButton.clicked.connect(updateTable) #Кнопка обновление таблицы
     ui.pushButton.clicked.connect(otherWindow) #Подключение к кнопке открытие нового окна на добавление новой карточки
+    ui.tableWidget.setSortingEnabled(True)
 
     sys.exit(app.exec())
 
