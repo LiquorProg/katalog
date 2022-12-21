@@ -109,10 +109,16 @@ def katalog(): #Главная страница со списком карточ
     ui.setupUi(MainWindow)
     MainWindow.show()
 
-    def updateTable():
-        """SQL запрос на инф. из 4 столбцов для добавления в виджет"""
-        cursor.execute("SELECT patients_id, street_type, street, house_numb FROM patients")
-        result = cursor.fetchall()
+    def updateTable(sql_search=False):
+        if not sql_search:
+            """SQL запрос на инф. из 4 столбцов для добавления в виджет без фильтров"""
+            cursor.execute("SELECT patients_id, street_type, street, house_numb FROM patients")
+            result = cursor.fetchall()
+        else:
+            """SQL запрос с фильтрами"""
+            cursor.execute(f"""SELECT patients_id, street_type, street, house_numb FROM patients WHERE street LIKE '%{ui.search_street.text()}%'
+                                AND house_numb LIKE '%{ui.search_house.text()}%' AND full_name LIKE '{ui.search_patient.text()}%'""")
+            result = cursor.fetchall()
 
         """Заполнение таблицы"""
         ui.tableWidget.setRowCount(len(result))
@@ -131,8 +137,11 @@ def katalog(): #Главная страница со списком карточ
         ui.tableWidget.setSortingEnabled(False)
 
     updateTable()
+
     ui.updateButton.clicked.connect(updateTable) #Кнопка обновление таблицы
     ui.pushButton.clicked.connect(otherWindow) #Подключение к кнопке открытие нового окна на добавление новой карточки
+    ui.searchButton.clicked.connect(lambda sh, sql_search=True: updateTable(sql_search)) #Кнопка для поиска пациента
+
     ui.tableWidget.setSortingEnabled(True)
 
     sys.exit(app.exec())
