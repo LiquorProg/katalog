@@ -84,6 +84,9 @@ class Ui_MainWindow(object):
         self.pushButton_2.setFont(font)
         self.pushButton_2.setObjectName("pushButton_2")
         self.gridLayout.addWidget(self.pushButton_2, 4, 0, 1, 2)
+        self.updateButton = QtWidgets.QPushButton(self.centralwidget)
+        self.updateButton.setGeometry(QtCore.QRect(477, 380, 75, 23))
+        self.updateButton.setObjectName("updateButton")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 559, 21))
@@ -116,6 +119,7 @@ class Ui_MainWindow(object):
         self.label_6.setText(_translate("MainWindow", "Паціент"))
         self.label_7.setText(_translate("MainWindow", "Керивник"))
         self.pushButton_2.setText(_translate("MainWindow", "Пошук"))
+        self.updateButton.setText(_translate("MainWindow", "оновити"))
         self.menubar.setAccessibleName(_translate("MainWindow", "fff"))
 
 

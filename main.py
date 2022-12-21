@@ -109,21 +109,25 @@ def katalog(): #Главная страница со списком карточ
     ui.setupUi(MainWindow)
     MainWindow.show()
 
-    """SQL запрос на инф. из 4 столбцов для добавления в виджет"""
-    cursor.execute("SELECT patients_id, street_type, street, house_numb FROM patients")
-    result = cursor.fetchall()
-    ui.tableWidget.setRowCount(len(result))
+Д    def updateTable():
+        """SQL запрос на инф. из 4 столбцов для добавления в виджет"""
+        cursor.execute("SELECT patients_id, street_type, street, house_numb FROM patients")
+        result = cursor.fetchall()
 
-    """Заполнение таблицы"""
-    for row, items in enumerate(result):
-        for index, item in enumerate(items):
-            ui.tableWidget.setItem(row, index, QtWidgets.QTableWidgetItem(str(item)))
+        """Заполнение таблицы"""
+        ui.tableWidget.setRowCount(len(result))
+        for row, items in enumerate(result):
+            for index, item in enumerate(items):
+                ui.tableWidget.setItem(row, index, QtWidgets.QTableWidgetItem(str(item)))
 
-        """Создание и добавление кнопки в таблицу на открытие карточки пациента"""
-        button = QtWidgets.QPushButton('Review')
-        button.clicked.connect(lambda sh, id=items[0]: otherWindow_2(id))
-        ui.tableWidget.setCellWidget(row, 4, button)
+            """Создание и добавление кнопки в таблицу на открытие карточки пациента"""
+            button = QtWidgets.QPushButton('Review')
+            button.clicked.connect(lambda sh, id=items[0]: otherWindow_2(id))
+            ui.tableWidget.setCellWidget(row, 4, button)
 
+    updateTable()
+    # ui.tableWidget.sortItems(0, QtCore.Qt.AscendingOrder)
+    ui.updateButton.clicked.connect(updateTable) #Кнопка обновление таблицы
     ui.pushButton.clicked.connect(otherWindow) #Подключение к кнопке открытие нового окна на добавление новой карточки
 
     sys.exit(app.exec())
