@@ -5,11 +5,12 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 from MainForm import Ui_MainWindow
 from case_record import Ui_Dialog
+from case_record_edit import Ui_Dialog_edit
 import sqlite3
 import sys
 
 
-def otherWindow(): #Карточка пациента
+def otherWindow(): #Создание новой карточки пациента
     global Dialog
     Dialog = QtWidgets.QDialog()
     ui = Ui_Dialog()
@@ -44,6 +45,46 @@ def otherWindow(): #Карточка пациента
 
     ui.saveButton.clicked.connect(savePat)#Кнопка сохранения информациия занесённой в ячейках в базу данных
 
+def otherWindow_2(id): #Просмотр и редактирование карточки пациента
+    global Dialog_edit
+    Dialog_edit = QtWidgets.QDialog()
+    ui = Ui_Dialog_edit()
+    ui.setupUi(Dialog_edit)
+    Dialog_edit.show()
+
+    """Получение всей инф. об определенном пациенте из таблицы БД"""
+    cursor.execute(f"SELECT * FROM patients WHERE patients_id = {id}")
+    result = cursor.fetchall()
+
+    def switch(status=True):
+        if not status:
+            ui.comboBox_streets_2.clear()
+            ui.comboBox_streets_2.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])
+        ui.street_name_2.setReadOnly(status)
+        ui.affiliation_2.setReadOnly(status)
+        ui.mobile_1_2.setReadOnly(status)
+        ui.mibile_2_2.setReadOnly(status)
+        ui.work_phone_2.setReadOnly(status)
+        ui.home_phone_2.setReadOnly(status)
+        ui.general_chatacteristics_2.setReadOnly(status)
+        ui.house_number_2.setReadOnly(status)
+        ui.pat_name_2.setReadOnly(status)
+        ui.manager_2.setReadOnly(status)
+
+    switch()
+
+    """Заполнение ячеек данными полученых из БД"""
+    ui.comboBox_streets_2.addItems([str(result[0][7])])
+    ui.card_number_2.setText(f"№{result[0][0]}")
+    ui.street_name_2.setText(str(result[0][3]))
+    ui.affiliation_2.setText(str(result[0][4]))
+    ui.mobile_1_2.setText(str(result[0][5]))
+    ui.general_chatacteristics_2.setText(str(result[0][2]))
+    ui.house_number_2.setText(str(result[0][6]))
+    ui.pat_name_2.setText(str(result[0][1]))
+
+    ui.editButton.clicked.connect(lambda sh, stat=False: switch(stat))
+
 def katalog(): #Главная страница со списком карточек
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
@@ -51,7 +92,22 @@ def katalog(): #Главная страница со списком карточ
     ui.setupUi(MainWindow)
     MainWindow.show()
 
-    ui.pushButton.clicked.connect(otherWindow) #Подключение к кнопке открытие нового окна
+    """SQL запрос на инф. из 4 столбцов для добавления в виджет"""
+    cursor.execute("SELECT patients_id, street_type, street, house_numb FROM patients")
+    result = cursor.fetchall()
+    ui.tableWidget.setRowCount(len(result))
+
+    """Заполнение таблицы"""
+    for row, items in enumerate(result):
+        for index, item in enumerate(items):
+            ui.tableWidget.setItem(row, index, QtWidgets.QTableWidgetItem(str(item)))
+
+        """Создание и добавление кнопки в таблицу на открытие карточки пациента"""
+        button = QtWidgets.QPushButton('Review')
+        button.clicked.connect(lambda sh, id=items[0]: otherWindow_2(id))
+        ui.tableWidget.setCellWidget(row, 4, button)
+
+    ui.pushButton.clicked.connect(otherWindow) #Подключение к кнопке открытие нового окна на добавление новой карточки
 
     sys.exit(app.exec())
 
