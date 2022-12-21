@@ -56,10 +56,12 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
     cursor.execute(f"SELECT * FROM patients WHERE patients_id = {id}")
     result = cursor.fetchall()
 
-    def switch(status=True):
+    def switch(status=True): #Функция для переключения статуса виджетов
         if not status:
             ui.comboBox_streets_2.clear()
             ui.comboBox_streets_2.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])
+            ui.saveButton_2.setEnabled(True)
+
         ui.street_name_2.setReadOnly(status)
         ui.affiliation_2.setReadOnly(status)
         ui.mobile_1_2.setReadOnly(status)
@@ -71,7 +73,21 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
         ui.pat_name_2.setReadOnly(status)
         ui.manager_2.setReadOnly(status)
 
-    switch()
+    def editPat(): #Занесение в БД отредактированные данные
+        print(name := ui.pat_name_2.text())
+        print(info := ui.general_chatacteristics_2.toPlainText())
+        print(street := ui.street_name_2.text())
+        print(affil := ui.affiliation_2.text())
+        print(mobile := ui.mobile_1_2.text())
+        print(house_numb := ui.house_number_2.text())
+        print(street_t := ui.comboBox_streets_2.currentText())
+        cursor.execute(f"""UPDATE patients SET full_name='{name}', info='{info}', street='{street}', affiliation='{affil}', 
+                        mobile_1='{mobile}', house_numb={house_numb}, street_type='{street_t}' WHERE patients_id={id}""")
+        db.commit()
+        Dialog_edit.close()
+
+    switch() #Установка виджетов в статус ReadOnly
+    ui.saveButton_2.setEnabled(False)
 
     """Заполнение ячеек данными полученых из БД"""
     ui.comboBox_streets_2.addItems([str(result[0][7])])
@@ -84,6 +100,7 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
     ui.pat_name_2.setText(str(result[0][1]))
 
     ui.editButton.clicked.connect(lambda sh, stat=False: switch(stat))
+    ui.saveButton_2.clicked.connect(editPat)
 
 def katalog(): #Главная страница со списком карточек
     app = QtWidgets.QApplication(sys.argv)
