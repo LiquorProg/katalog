@@ -109,7 +109,7 @@ def katalog(): #Главная страница со списком карточ
     ui.setupUi(MainWindow)
     MainWindow.show()
 
-Д    def updateTable():
+    def updateTable():
         """SQL запрос на инф. из 4 столбцов для добавления в виджет"""
         cursor.execute("SELECT patients_id, street_type, street, house_numb FROM patients")
         result = cursor.fetchall()
