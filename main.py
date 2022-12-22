@@ -36,11 +36,14 @@ def otherWindow(): #Создание новой карточки пациент�
         print(street := ui.street_name.text())
         print(affil := ui.affiliation.text())
         print(mobile := ui.mobile_1.text())
+        print(mobile_2 := ui.mobile_2.text())
+        print(work_ph := ui.work_phone.text())
+        print(home_ph := ui.home_phone.text())
         print(house_numb := ui.house_number.text())
         print(street_t := ui.comboBox_streets.currentText())
         print(manag := ui.manager.toPlainText())
-        cursor.execute(f"""INSERT INTO patients(full_name, info, street, affiliation, mobile_1, house_numb, street_type, manager) 
-                        VALUES('{name}', '{info}', '{street}', '{affil}', '{mobile}', {house_numb}, '{street_t}', '{manag}')""")
+        cursor.execute(f"""INSERT INTO patients(full_name, info, street, affiliation, mobile_1, mobile_2, w_phone, h_phone, house_numb, street_type, manager) 
+                        VALUES('{name}', '{info}', '{street}', '{affil}', '{mobile}', '{mobile_2}', '{work_ph}', '{home_ph}', {house_numb}, '{street_t}', '{manag}')""")
         db.commit()
         Dialog.close()
 
@@ -67,7 +70,7 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
         ui.street_name_2.setReadOnly(status)
         ui.affiliation_2.setReadOnly(status)
         ui.mobile_1_2.setReadOnly(status)
-        ui.mibile_2_2.setReadOnly(status)
+        ui.mobile_2_2.setReadOnly(status)
         ui.work_phone_2.setReadOnly(status)
         ui.home_phone_2.setReadOnly(status)
         ui.general_chatacteristics_2.setReadOnly(status)
@@ -81,11 +84,15 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
         print(street := ui.street_name_2.text())
         print(affil := ui.affiliation_2.text())
         print(mobile := ui.mobile_1_2.text())
+        print(mobile_2 := ui.mobile_2_2.text())
+        print(work_ph := ui.work_phone_2.text())
+        print(home_ph := ui.home_phone_2.text())
         print(house_numb := ui.house_number_2.text())
         print(street_t := ui.comboBox_streets_2.currentText())
         print(manag := ui.manager_2.toPlainText())
         cursor.execute(f"""UPDATE patients SET full_name='{name}', info='{info}', street='{street}', affiliation='{affil}', 
-                        mobile_1='{mobile}', house_numb={house_numb}, street_type='{street_t}', manager='{manag}' WHERE patients_id={id}""")
+                        mobile_1='{mobile}', mobile_2='{mobile_2}', w_phone='{work_ph}', h_phone='{home_ph}',
+                        house_numb={house_numb}, street_type='{street_t}', manager='{manag}' WHERE patients_id={id}""")
         db.commit()
         Dialog_edit.close()
 
@@ -93,15 +100,18 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
     ui.saveButton_2.setEnabled(False) #Кнопка сохранения не активна
 
     """Заполнение ячеек данными полученых из БД"""
-    ui.comboBox_streets_2.addItems([str(result[0][7])])
+    ui.comboBox_streets_2.addItems([str(result[0][10])])
     ui.card_number_2.setText(f"№{result[0][0]}")
     ui.street_name_2.setText(str(result[0][3]))
     ui.affiliation_2.setText(str(result[0][4]))
     ui.mobile_1_2.setText(str(result[0][5]))
+    ui.mobile_2_2.setText(str(result[0][6]))
+    ui.work_phone_2.setText(str(result[0][7]))
+    ui.home_phone_2.setText(str(result[0][8]))
     ui.general_chatacteristics_2.setText(str(result[0][2]))
-    ui.house_number_2.setText(str(result[0][6]))
+    ui.house_number_2.setText(str(result[0][9]))
     ui.pat_name_2.setText(str(result[0][1]))
-    ui.manager_2.setText(str(result[0][8]))
+    ui.manager_2.setText(str(result[0][11]))
 
     ui.editButton.clicked.connect(lambda sh, stat=False: switch(stat)) #Кнопка для редактирования ячеек
     ui.saveButton_2.clicked.connect(editPat) #Кнопка сохранения
