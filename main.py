@@ -38,8 +38,9 @@ def otherWindow(): #Создание новой карточки пациент�
         print(mobile := ui.mobile_1.text())
         print(house_numb := ui.house_number.text())
         print(street_t := ui.comboBox_streets.currentText())
-        cursor.execute(f"""INSERT INTO patients(full_name, info, street, affiliation, mobile_1, house_numb, street_type) 
-                        VALUES('{name}', '{info}', '{street}', '{affil}', '{mobile}', {house_numb}, '{street_t}')""")
+        print(manag := ui.manager.toPlainText())
+        cursor.execute(f"""INSERT INTO patients(full_name, info, street, affiliation, mobile_1, house_numb, street_type, manager) 
+                        VALUES('{name}', '{info}', '{street}', '{affil}', '{mobile}', {house_numb}, '{street_t}', '{manag}')""")
         db.commit()
         Dialog.close()
 
@@ -81,8 +82,9 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
         print(mobile := ui.mobile_1_2.text())
         print(house_numb := ui.house_number_2.text())
         print(street_t := ui.comboBox_streets_2.currentText())
+        print(manag := ui.manager_2.toPlainText())
         cursor.execute(f"""UPDATE patients SET full_name='{name}', info='{info}', street='{street}', affiliation='{affil}', 
-                        mobile_1='{mobile}', house_numb={house_numb}, street_type='{street_t}' WHERE patients_id={id}""")
+                        mobile_1='{mobile}', house_numb={house_numb}, street_type='{street_t}', manager='{manag}' WHERE patients_id={id}""")
         db.commit()
         Dialog_edit.close()
 
@@ -116,8 +118,9 @@ def katalog(): #Главная страница со списком карточ
             result = cursor.fetchall()
         else:
             """SQL запрос с фильтрами"""
-            cursor.execute(f"""SELECT patients_id, street_type, street, house_numb FROM patients WHERE street LIKE '%{ui.search_street.text()}%'
-                                AND house_numb LIKE '%{ui.search_house.text()}%' AND full_name LIKE '{ui.search_patient.text()}%'""")
+            cursor.execute(f"""SELECT patients_id, street_type, street, house_numb FROM patients WHERE street LIKE '{ui.search_street.text()}%'
+                                AND house_numb LIKE '{ui.search_house.text()}%' AND full_name LIKE '{ui.search_patient.text()}%' 
+                                AND full_name LIKE '{ui.search_manager.text()}%'""")
             result = cursor.fetchall()
 
         """Заполнение таблицы"""
