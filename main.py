@@ -64,7 +64,7 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
         if not status:
             ui.comboBox_streets_2.clear()
             ui.comboBox_streets_2.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])
-            ui.comboBox_streets_2.setCurrentText(str(result[0][7]))
+            ui.comboBox_streets_2.setCurrentText(str(result[0][10]))
             ui.saveButton_2.setEnabled(True)
 
         ui.street_name_2.setReadOnly(status)
