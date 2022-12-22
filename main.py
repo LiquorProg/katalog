@@ -61,6 +61,7 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
         if not status:
             ui.comboBox_streets_2.clear()
             ui.comboBox_streets_2.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])
+            ui.comboBox_streets_2.setCurrentText(str(result[0][7]))
             ui.saveButton_2.setEnabled(True)
 
         ui.street_name_2.setReadOnly(status)
@@ -89,7 +90,7 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
         Dialog_edit.close()
 
     switch() #Установка виджетов в статус ReadOnly
-    ui.saveButton_2.setEnabled(False)
+    ui.saveButton_2.setEnabled(False) #Кнопка сохранения не активна
 
     """Заполнение ячеек данными полученых из БД"""
     ui.comboBox_streets_2.addItems([str(result[0][7])])
@@ -100,9 +101,10 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
     ui.general_chatacteristics_2.setText(str(result[0][2]))
     ui.house_number_2.setText(str(result[0][6]))
     ui.pat_name_2.setText(str(result[0][1]))
+    ui.manager_2.setText(str(result[0][8]))
 
-    ui.editButton.clicked.connect(lambda sh, stat=False: switch(stat))
-    ui.saveButton_2.clicked.connect(editPat)
+    ui.editButton.clicked.connect(lambda sh, stat=False: switch(stat)) #Кнопка для редактирования ячеек
+    ui.saveButton_2.clicked.connect(editPat) #Кнопка сохранения
 
 def katalog(): #Главная страница со списком карточек
     app = QtWidgets.QApplication(sys.argv)
@@ -118,9 +120,10 @@ def katalog(): #Главная страница со списком карточ
             result = cursor.fetchall()
         else:
             """SQL запрос с фильтрами"""
-            cursor.execute(f"""SELECT patients_id, street_type, street, house_numb FROM patients WHERE street LIKE '{ui.search_street.text()}%'
+            cursor.execute(f"""SELECT patients_id, street_type, street, house_numb FROM patients WHERE street LIKE '%{ui.search_street.text()}%'
                                 AND house_numb LIKE '{ui.search_house.text()}%' AND full_name LIKE '{ui.search_patient.text()}%' 
-                                AND full_name LIKE '{ui.search_manager.text()}%'""")
+                                AND manager LIKE '{ui.search_manager.text()}%'""")
+            print(ui.search_street.text())
             result = cursor.fetchall()
 
         """Заполнение таблицы"""
