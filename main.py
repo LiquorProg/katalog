@@ -141,14 +141,18 @@ def katalog(): #Главная страница со списком карточ
             button.clicked.connect(lambda sh, id=items[0]: otherWindow_2(id))
             ui.tableWidget.setCellWidget(row, 4, button)
         ui.tableWidget.setSortingEnabled(False)
+        ui.sortButton.setEnabled(True)
+
+    def sort_table():
+        ui.tableWidget.setSortingEnabled(True)  #Сортировка столбцов
+        ui.sortButton.setEnabled(False)
 
     updateTable()
 
+    ui.sortButton.clicked.connect(sort_table) #Кнопка сортировки столбцов
     ui.updateButton.clicked.connect(updateTable) #Кнопка обновление таблицы
     ui.pushButton.clicked.connect(otherWindow) #Подключение к кнопке открытие нового окна на добавление новой карточки
     ui.searchButton.clicked.connect(lambda sh, sql_search=True: updateTable(sql_search)) #Кнопка для поиска пациента
-
-    ui.tableWidget.setSortingEnabled(True)
 
     sys.exit(app.exec())
 
