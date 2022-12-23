@@ -113,6 +113,16 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
     ui.pat_name_2.setText(str(result[0][1]))
     ui.manager_2.setText(str(result[0][11]))
 
+    def diagnosesTable(): #Таблица с диагнозами
+        cursor.execute(f"SELECT * FROM diagnoses WHERE patients_id = {id}")
+        result = cursor.fetchall()
+
+        """Заполнение таблицы"""
+        ui.tableWidget_diag_edit.setRowCount(len(result))
+        for row, items in enumerate(result):
+            for index, item in enumerate(items):
+                ui.tableWidget_diag_edit.setItem(row, index, QtWidgets.QTableWidgetItem(str(item)))
+
     ui.editButton.clicked.connect(lambda sh, stat=False: switch(stat)) #Кнопка для редактирования ячеек
     ui.saveButton_2.clicked.connect(editPat) #Кнопка сохранения
 
@@ -123,7 +133,7 @@ def katalog(): #Главная страница со списком карточ
     ui.setupUi(MainWindow)
     MainWindow.show()
 
-    def updateTable(sql_search=False):
+    def updateTable(sql_search=False): #таблица со списком карточек пациентов
         if not sql_search:
             """SQL запрос на инф. из 4 столбцов для добавления в виджет без фильтров"""
             cursor.execute("SELECT patients_id, street_type, street, house_numb FROM patients")
