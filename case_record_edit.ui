@@ -372,7 +372,7 @@ p, li { white-space: pre-wrap; }
    </column>
    <column>
     <property name="text">
-     <string>New Column</string>
+     <string>кв.</string>
     </property>
    </column>
    <column>

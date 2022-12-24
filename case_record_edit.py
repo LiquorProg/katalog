@@ -182,7 +182,7 @@ class Ui_Dialog_edit(object):
         item = self.tableWidget_diag_edit.horizontalHeaderItem(0)
         item.setText(_translate("Dialog_edit", "Дата"))
         item = self.tableWidget_diag_edit.horizontalHeaderItem(1)
-        item.setText(_translate("Dialog_edit", "New Column"))
+        item.setText(_translate("Dialog_edit", "кв."))
         item = self.tableWidget_diag_edit.horizontalHeaderItem(2)
         item.setText(_translate("Dialog_edit", "Паціент"))
         item = self.tableWidget_diag_edit.horizontalHeaderItem(3)

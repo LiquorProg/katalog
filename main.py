@@ -114,14 +114,16 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
     ui.manager_2.setText(str(result[0][11]))
 
     def diagnosesTable(): #Таблица с диагнозами
-        cursor.execute(f"SELECT * FROM diagnoses WHERE patients_id = {id}")
+        cursor.execute(f"SELECT date, apartment, full_name, diagnosis FROM patients join diagnoses using(patients_id) where patients_id = {id}")
         result = cursor.fetchall()
-
+        print(result)
         """Заполнение таблицы"""
         ui.tableWidget_diag_edit.setRowCount(len(result))
         for row, items in enumerate(result):
             for index, item in enumerate(items):
                 ui.tableWidget_diag_edit.setItem(row, index, QtWidgets.QTableWidgetItem(str(item)))
+
+    diagnosesTable()
 
     ui.editButton.clicked.connect(lambda sh, stat=False: switch(stat)) #Кнопка для редактирования ячеек
     ui.saveButton_2.clicked.connect(editPat) #Кнопка сохранения

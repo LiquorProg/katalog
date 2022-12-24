@@ -173,7 +173,7 @@ class Ui_Dialog(object):
         item = self.tableWidget_diag.horizontalHeaderItem(0)
         item.setText(_translate("Dialog", "Дата"))
         item = self.tableWidget_diag.horizontalHeaderItem(1)
-        item.setText(_translate("Dialog", "New Column"))
+        item.setText(_translate("Dialog", "кв."))
         item = self.tableWidget_diag.horizontalHeaderItem(2)
         item.setText(_translate("Dialog", "Паціент"))
         item = self.tableWidget_diag.horizontalHeaderItem(3)
