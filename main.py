@@ -1,6 +1,3 @@
-from PyQt5 import QtSql
-from PyQt5.QtSql import QSqlTableModel
-from PyQt5.QtWidgets import QApplication
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from MainForm import Ui_MainWindow
