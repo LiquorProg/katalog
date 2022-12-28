@@ -3,9 +3,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from MainForm import Ui_MainWindow
 from case_record import Ui_Dialog
 from case_record_edit import Ui_Dialog_edit
+from diagnosis import Ui_Dialog_add_diag
 import sqlite3
 import sys
-
+import json
 
 def otherWindow(): #Создание новой карточки пациента
     global Dialog
@@ -24,30 +25,88 @@ def otherWindow(): #Создание новой карточки пациент�
     """Автонумирование для новой карточки пациента"""
     cursor.execute("select max(patients_id) from patients")
     result = cursor.fetchall()
-    ui.card_number.setText(f'№{result[0][0]+1}')
+    new_pat_id = result[0][0]+1
+    ui.card_number.setText(f'№{new_pat_id}')
 
-    """Внесение всей информации из ячеек в базу данных и закрытие окна"""
-    def savePat():
-        print(name := ui.pat_name.text())
-        print(info := ui.general_chatacteristics.toPlainText())
-        print(street := ui.street_name.text())
-        print(affil := ui.affiliation.text())
-        print(mobile := ui.mobile_1.text())
-        print(mobile_2 := ui.mobile_2.text())
-        print(work_ph := ui.work_phone.text())
-        print(home_ph := ui.home_phone.text())
-        print(house_numb := ui.house_number.text())
-        print(street_t := ui.comboBox_streets.currentText())
-        print(manag := ui.manager.toPlainText())
+    def receive_data(): #Присвоение переменных
+        fields = {
+            "name": ui.pat_name.text(),
+            "info": ui.general_chatacteristics.toPlainText(),
+            "street": ui.street_name.text(),
+            "affil": ui.affiliation.text(),
+            "mobile": ui.mobile_1.text(),
+            "mobile_2": ui.mobile_2.text(),
+            "work_ph": ui.work_phone.text(),
+            "home_ph": ui.home_phone.text(),
+            "house_numb": ui.house_number.text(),
+            "street_t": ui.comboBox_streets.currentText(),
+            "manag": ui.manager.toPlainText(),
+        }
+        return fields
+
+    def savePat(): #Внесение всей информации из ячеек в базу данных
+        fields = receive_data()
         cursor.execute(f"""INSERT INTO patients(full_name, info, street, affiliation, mobile_1, mobile_2, w_phone, h_phone, house_numb, street_type, manager) 
-                        VALUES('{name}', '{info}', '{street}', '{affil}', '{mobile}', '{mobile_2}', '{work_ph}', '{home_ph}', {house_numb}, '{street_t}', '{manag}')""")
+                        VALUES("{fields['name']}", "{fields['info']}", "{fields['street']}", "{fields['affil']}", "{fields['mobile']}", 
+                                "{fields['mobile_2']}", "{fields['work_ph']}", "{fields['home_ph']}", "{fields['house_numb']}", 
+                                "{fields['street_t']}", "{fields['manag']}")""")
         db.commit()
-        Dialog.close()
+        ui.add_to_diag_Button.setEnabled(True)
+    def save_to_file_Pat(): #Сохранение всей информации пациента в формате json
+        fields = receive_data()
+        with open(f"save_cards/{fields['name']}.json", "w") as out_file:
+            json.dump(fields, out_file, indent=4, sort_keys=True)
 
+    def load_info_from_file(): #Загрузка из файла типа json всех данных и добавление их в ячейки
+        with open(f"save_cards/Patient3.json.", "r") as out_file:
+            data = json.load(out_file)
+
+            """Заполнение ячеек данными полученых из файла"""
+            ui.comboBox_streets.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])
+            ui.comboBox_streets.setCurrentText(data["street_t"])
+            ui.street_name.setText(data["street"])
+            ui.affiliation.setText(data["affil"])
+            ui.mobile_1.setText(data["mobile"])
+            ui.mobile_2.setText(data["mobile_2"])
+            ui.work_phone.setText(data["work_ph"])
+            ui.home_phone.setText(data["home_ph"])
+            ui.general_chatacteristics.setText(data["info"])
+            ui.house_number.setText(data["house_numb"])
+            ui.pat_name.setText(data["name"])
+            ui.manager.setText(data["manag"])
+
+    ui.add_to_diag_Button.setEnabled(False)
+
+    ui.add_to_diag_Button.clicked.connect(lambda sh, id=new_pat_id: add_new_diagnosis(id))
+    ui.addButton.clicked.connect(load_info_from_file)
+    ui.save_to_fileButton.clicked.connect(save_to_file_Pat)
     ui.saveButton.clicked.connect(savePat)#Кнопка сохранения информациия занесённой в ячейках в базу данных
 
+def add_new_diagnosis(id): #Окно для добавления новых диагнозов
+    global Dialog_add_diag
+    Dialog_add_diag = QtWidgets.QDialog()
+    ui = Ui_Dialog_add_diag()
+    ui.setupUi(Dialog_add_diag)
+    Dialog_add_diag.show()
+
+    cursor.execute(f"SELECT full_name FROM patients WHERE patients_id = {id}")
+    result = cursor.fetchall()
+
+    ui.patient_add_diag.setReadOnly(True)
+    ui.patient_add_diag.setText(result[0][0])
+
+    def add_diagnosis_to_table():
+        cursor.execute(f"""INSERT INTO diagnoses(date, apartment, patients_id, diagnosis)
+                            VALUES("{ui.dateEdit_add_diag.dateTime().toString("dd.MM.yyyy")}", 
+                            {ui.apart_add_diag.text()}, {id}, "{ui.diagnosis_add_diag.text()}")""")
+        db.commit()
+        Dialog_add_diag.close()
+        diagnosesTable()
+
+    ui.add_to_table_Button.clicked.connect(add_diagnosis_to_table)
 def otherWindow_2(id): #Просмотр и редактирование карточки пациента
     global Dialog_edit
+    global diagnosesTable
     Dialog_edit = QtWidgets.QDialog()
     ui = Ui_Dialog_edit()
     ui.setupUi(Dialog_edit)
@@ -111,7 +170,8 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
     ui.manager_2.setText(str(result[0][11]))
 
     def diagnosesTable(): #Таблица с диагнозами
-        cursor.execute(f"SELECT date, apartment, full_name, diagnosis FROM patients join diagnoses using(patients_id) where patients_id = {id}")
+        cursor.execute(f"""SELECT date, apartment, full_name, diagnosis 
+                            FROM patients join diagnoses using(patients_id) where patients_id = {id}""")
         result = cursor.fetchall()
         print(result)
         """Заполнение таблицы"""
@@ -122,6 +182,8 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
 
     diagnosesTable()
 
+
+    ui.add_to_diag_Button_2.clicked.connect(lambda sh, id_pat=id: add_new_diagnosis(id_pat)) #Кнопка для открытия нового окна для создания новой записи таблицы диагнозов
     ui.editButton.clicked.connect(lambda sh, stat=False: switch(stat)) #Кнопка для редактирования ячеек
     ui.saveButton_2.clicked.connect(editPat) #Кнопка сохранения
 

@@ -43,7 +43,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>230</y>
+     <y>240</y>
      <width>211</width>
      <height>31</height>
     </rect>
@@ -254,24 +254,6 @@ p, li { white-space: pre-wrap; }
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="proverka">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>581</y>
-     <width>81</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>test_button</string>
-   </property>
-  </widget>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
@@ -375,7 +357,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>520</y>
+     <y>570</y>
      <width>91</width>
      <height>31</height>
     </rect>
@@ -387,6 +369,42 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>додати</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="save_to_fileButton">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>570</y>
+     <width>161</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Зберегти як файл</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="add_to_diag_Button">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>370</y>
+     <width>21</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>+</string>
    </property>
   </widget>
  </widget>
