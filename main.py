@@ -15,8 +15,6 @@ def otherWindow(): #Создание новой карточки пациент�
     ui.setupUi(Dialog)
     Dialog.show()
 
-
-
     ui.comboBox_streets.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])#Комбобокс с вариантами назв. улиц
 
     """Автонумирование для новой карточки пациента"""
@@ -59,28 +57,44 @@ def otherWindow(): #Создание новой карточки пациент�
                                             {int(ui.tableWidget_diag.item(row, 1).text())}, "{new_pat_id}",
                                             "{ui.tableWidget_diag.item(row, 3).text()}")""")
                 db.commit()
+        Dialog.close()
     def save_to_file_Pat(): #Сохранение всей информации пациента в формате json
         fields = receive_data()
         with open(f"save_cards/{fields['name']}.json", "w") as out_file:
-            json.dump(fields, out_file, indent=4, sort_keys=True)
+            table = {}
+            if ui.tableWidget_diag.rowCount() > 0:
+                for row in range(ui.tableWidget_diag.rowCount()):
+                    table[str(row)] = [
+                        ui.tableWidget_diag.item(row, 0).text(),
+                        int(ui.tableWidget_diag.item(row, 1).text()),
+                        fields['name'],
+                        ui.tableWidget_diag.item(row, 3).text()
+                    ]
+            json.dump([fields, table], out_file, indent=4, sort_keys=True)
 
     def load_info_from_file(): #Загрузка из файла типа json всех данных и добавление их в ячейки
-        with open(f"save_cards/Patient3.json.", "r") as out_file:
+        with open(f"save_cards/Patient4.json.", "r") as out_file:
             data = json.load(out_file)
 
             """Заполнение ячеек данными полученых из файла"""
             ui.comboBox_streets.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])
-            ui.comboBox_streets.setCurrentText(data["street_t"])
-            ui.street_name.setText(data["street"])
-            ui.affiliation.setText(data["affil"])
-            ui.mobile_1.setText(data["mobile"])
-            ui.mobile_2.setText(data["mobile_2"])
-            ui.work_phone.setText(data["work_ph"])
-            ui.home_phone.setText(data["home_ph"])
-            ui.general_chatacteristics.setText(data["info"])
-            ui.house_number.setText(data["house_numb"])
-            ui.pat_name.setText(data["name"])
-            ui.manager.setText(data["manag"])
+            ui.comboBox_streets.setCurrentText(data[0]["street_t"])
+            ui.street_name.setText(data[0]["street"])
+            ui.affiliation.setText(data[0]["affil"])
+            ui.mobile_1.setText(data[0]["mobile"])
+            ui.mobile_2.setText(data[0]["mobile_2"])
+            ui.work_phone.setText(data[0]["work_ph"])
+            ui.home_phone.setText(data[0]["home_ph"])
+            ui.general_chatacteristics.setText(data[0]["info"])
+            ui.house_number.setText(data[0]["house_numb"])
+            ui.pat_name.setText(data[0]["name"])
+            ui.manager.setText(data[0]["manag"])
+
+            if data[1]:
+                ui.tableWidget_diag.setRowCount(len(data[1]))
+                for row, items in enumerate(data[1].values()):
+                    for index, item in enumerate(items):
+                        ui.tableWidget_diag.setItem(row, index, QtWidgets.QTableWidgetItem(str(item)))
 
     global add_new_row
 
@@ -140,10 +154,19 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
     def switch(status=True): #Функция для переключения статуса виджетов
         if not status:
             ui.comboBox_streets_2.clear()
+            cursor.execute(f"SELECT * FROM patients WHERE patients_id = {id}")
+            new_result = cursor.fetchall()
             ui.comboBox_streets_2.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])
-            ui.comboBox_streets_2.setCurrentText(str(result[0][10]))
+            ui.comboBox_streets_2.setCurrentText(str(new_result[0][10]))
             ui.saveButton_2.setEnabled(True)
             ui.add_to_diag_Button_2.setEnabled(True)
+            ui.addButton_2.setEnabled(True)
+            ui.save_to_fileButton_2.setEnabled(False)
+        else:
+            ui.comboBox_streets_2.clear()
+            cursor.execute(f"SELECT * FROM patients WHERE patients_id = {id}")
+            new_result = cursor.fetchall()
+            ui.comboBox_streets_2.addItems([str(new_result[0][10])])
 
         ui.street_name_2.setReadOnly(status)
         ui.affiliation_2.setReadOnly(status)
@@ -156,21 +179,27 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
         ui.pat_name_2.setReadOnly(status)
         ui.manager_2.setReadOnly(status)
 
+    def receive_data():  # Присвоение переменных
+        fields = {
+            "name": ui.pat_name_2.text(),
+            "info": ui.general_chatacteristics_2.toPlainText(),
+            "street": ui.street_name_2.text(),
+            "affil": ui.affiliation_2.text(),
+            "mobile": ui.mobile_1_2.text(),
+            "mobile_2": ui.mobile_2_2.text(),
+            "work_ph": ui.work_phone_2.text(),
+            "home_ph": ui.home_phone_2.text(),
+            "house_numb": ui.house_number_2.text(),
+            "street_t": ui.comboBox_streets_2.currentText(),
+            "manag": ui.manager_2.toPlainText(),
+        }
+        return fields
+
     def editPat(): #Занесение в БД отредактированные данные
-        print(name := ui.pat_name_2.text())
-        print(info := ui.general_chatacteristics_2.toPlainText())
-        print(street := ui.street_name_2.text())
-        print(affil := ui.affiliation_2.text())
-        print(mobile := ui.mobile_1_2.text())
-        print(mobile_2 := ui.mobile_2_2.text())
-        print(work_ph := ui.work_phone_2.text())
-        print(home_ph := ui.home_phone_2.text())
-        print(house_numb := ui.house_number_2.text())
-        print(street_t := ui.comboBox_streets_2.currentText())
-        print(manag := ui.manager_2.toPlainText())
-        cursor.execute(f"""UPDATE patients SET full_name='{name}', info='{info}', street='{street}', affiliation='{affil}', 
-                        mobile_1='{mobile}', mobile_2='{mobile_2}', w_phone='{work_ph}', h_phone='{home_ph}',
-                        house_numb={house_numb}, street_type='{street_t}', manager='{manag}' WHERE patients_id={id}""")
+        fields = receive_data()
+        cursor.execute(f"""UPDATE patients SET full_name='{fields["name"]}', info='{fields["info"]}', street='{fields["street"]}', affiliation='{fields["affil"]}', 
+                        mobile_1='{fields["mobile"]}', mobile_2='{fields["mobile_2"]}', w_phone='{fields["work_ph"]}', h_phone='{fields["home_ph"]}',
+                        house_numb={fields["house_numb"]}, street_type='{fields["street_t"]}', manager='{fields["manag"]}' WHERE patients_id={id}""")
         db.commit()
 
         """Внесения в БД все записи из столбца с диагнозами"""
@@ -181,13 +210,19 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
                                             {int(ui.tableWidget_diag_edit.item(row, 1).text())}, "{id}",
                                             "{ui.tableWidget_diag_edit.item(row, 3).text()}")""")
                 db.commit()
-        Dialog_edit.close()
+
+        """Обратный переход в режим просмотра"""
+        ui.saveButton_2.setEnabled(False)
+        ui.addButton_2.setEnabled(False)
+        ui.add_to_diag_Button_2.setEnabled(False)
+        ui.save_to_fileButton_2.setEnabled(True)
+        switch()
 
     switch() #Установка виджетов в статус ReadOnly
     ui.saveButton_2.setEnabled(False) #Кнопка сохранения не активна
+    ui.addButton_2.setEnabled(False) #Кнопка добавления доп. информации из файла не активна
 
     """Заполнение ячеек данными полученых из БД"""
-    ui.comboBox_streets_2.addItems([str(result[0][10])])
     ui.card_number_2.setText(f"№{result[0][0]}")
     ui.street_name_2.setText(str(result[0][3]))
     ui.affiliation_2.setText(str(result[0][4]))
@@ -218,9 +253,9 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
 
     diagnosesTable() #Вызов функции для заполнения таблицы
 
-    row_count = len(sql_diagnosis()) # Точка отчета с последней записи для заполнения следующими
+    row_count = len(sql_diagnosis()) #Точка отчета с последней записи для заполнения следующими
 
-    ui.add_to_diag_Button_2.setEnabled(False)  # Кнопка для добавления новой записи в табл. диаг. не активна
+    ui.add_to_diag_Button_2.setEnabled(False)  #Кнопка для добавления новой записи в табл. диаг. не активна
 
     global add_new_row_edit
 
@@ -233,6 +268,21 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
         ui.tableWidget_diag_edit.setItem(row_count-1, 2, QtWidgets.QTableWidgetItem(str(name)))
         ui.tableWidget_diag_edit.setItem(row_count-1, 3, QtWidgets.QTableWidgetItem(str(diag)))
 
+    def save_to_file_Pat_edit(): # Сохранение всей информации пациента в формате json
+        fields = receive_data()
+        with open(f"save_cards/{fields['name']}.json", "w") as out_file:
+            table = {}
+            if ui.tableWidget_diag_edit.rowCount() > 0:
+                for row in range(ui.tableWidget_diag_edit.rowCount()):
+                    table[str(row)] = [
+                        ui.tableWidget_diag_edit.item(row, 0).text(),
+                        int(ui.tableWidget_diag_edit.item(row, 1).text()),
+                        fields['name'],
+                        ui.tableWidget_diag_edit.item(row, 3).text()
+                    ]
+            json.dump([fields, table], out_file, indent=4, sort_keys=True)
+
+    ui.save_to_fileButton_2.clicked.connect(save_to_file_Pat_edit)
     ui.add_to_diag_Button_2.clicked.connect(lambda sh, window=2, name=str(result[0][1]): add_new_diagnosis(window, name)) #Кнопка для открытия нового окна для создания новой записи таблицы диагнозов
     ui.editButton.clicked.connect(lambda sh, stat=False: switch(stat)) #Кнопка для редактирования ячеек
     ui.saveButton_2.clicked.connect(editPat) #Кнопка сохранения
