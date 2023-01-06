@@ -3,9 +3,9 @@ from PyQt5.QtCore import QDate
 from PyQt5.QtWidgets import QFileDialog
 
 from MainForm import Ui_MainWindow
-from case_record_new import Ui_CardNew
-from case_record_edit_new import Ui_CardEdit
-from case_record_file_new import Ui_CardFile
+from case_record import Ui_CardNew
+from case_record_edit import Ui_CardEdit
+from case_record_file import Ui_CardFile
 from diagnosis import Ui_Dialog_add_diag
 from diagnosis_view import Ui_Dialog_view_diag
 import sqlite3
@@ -102,7 +102,7 @@ def add_new_diagnosis(window, name=''): #Окно для добавления н
     if window == 1:
         fields = receive_data()
         ui.patient_add_diag.setText(fields["name"])
-    elif window == 1:
+    elif window == 2:
         ui.patient_add_diag.setText(name)
     else:
         fields = receive_data_file()
@@ -206,6 +206,7 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
             new_result = cursor.fetchall()
             ui.comboBox_streets_2.addItems([str(new_result[0][10])])
             ui.editButton.setEnabled(True)
+            ui.addButton_2.setEnabled(False)
             ui.tableWidget_diag_edit.doubleClicked.connect(load_index)
 
         ui.street_name_2.setReadOnly(status)
