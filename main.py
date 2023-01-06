@@ -1,20 +1,23 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QDate
 from PyQt5.QtWidgets import QFileDialog
 
 from MainForm import Ui_MainWindow
-from case_record import Ui_Dialog
-from case_record_edit import Ui_Dialog_edit
+from case_record_new import Ui_CardNew
+from case_record_edit_new import Ui_CardEdit
+from case_record_file_new import Ui_CardFile
 from diagnosis import Ui_Dialog_add_diag
+from diagnosis_view import Ui_Dialog_view_diag
 import sqlite3
 import sys
 import json
 
 def otherWindow(): #Создание новой карточки пациента
-    global Dialog
-    Dialog = QtWidgets.QDialog()
-    ui = Ui_Dialog()
-    ui.setupUi(Dialog)
-    Dialog.show()
+    global CardNew
+    CardNew = QtWidgets.QMainWindow()
+    ui = Ui_CardNew()
+    ui.setupUi(CardNew)
+    CardNew.show()
 
     ui.comboBox_streets.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])#Комбобокс с вариантами назв. улиц
 
@@ -22,7 +25,6 @@ def otherWindow(): #Создание новой карточки пациент�
     cursor.execute("select max(patients_id) from patients")
     result = cursor.fetchall()
     new_pat_id = result[0][0]+1
-    ui.card_number.setText(f'№{new_pat_id}')
 
     global receive_data
 
@@ -58,7 +60,7 @@ def otherWindow(): #Создание новой карточки пациент�
                                             "{ui.tableWidget_diag.item(row, 1).text()}", "{new_pat_id}",
                                             "{ui.tableWidget_diag.item(row, 3).text()}")""")
                 db.commit()
-        Dialog.close()
+        CardNew.close()
     def save_to_file_Pat(): #Сохранение всей информации пациента в формате json
         fields = receive_data()
         with open(f"save_cards/{fields['name']}.json", "w") as out_file:
@@ -73,33 +75,6 @@ def otherWindow(): #Создание новой карточки пациент�
                     ]
             json.dump([fields, table], out_file, indent=4, sort_keys=True)
 
-    def load_info_from_file(): #Загрузка из файла типа json всех данных и добавление их в ячейки
-        fname = QFileDialog().getOpenFileName(Dialog, "Open", "save_cards", "Карточки формата json (*.json)")
-
-        if fname[0]:
-            with open(f"{fname[0]}", "r") as out_file:
-                data = json.load(out_file)
-
-                """Заполнение ячеек данными полученых из файла"""
-                ui.comboBox_streets.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])
-                ui.comboBox_streets.setCurrentText(data[0]["street_t"])
-                ui.street_name.setText(data[0]["street"])
-                ui.affiliation.setText(data[0]["affil"])
-                ui.mobile_1.setText(data[0]["mobile"])
-                ui.mobile_2.setText(data[0]["mobile_2"])
-                ui.work_phone.setText(data[0]["work_ph"])
-                ui.home_phone.setText(data[0]["home_ph"])
-                ui.general_chatacteristics.setText(data[0]["info"])
-                ui.house_number.setText(data[0]["house_numb"])
-                ui.pat_name.setText(data[0]["name"])
-                ui.manager.setText(data[0]["manag"])
-
-                if data[1]:
-                    ui.tableWidget_diag.setRowCount(len(data[1]))
-                    for row, items in enumerate(data[1].values()):
-                        for index, item in enumerate(items):
-                            ui.tableWidget_diag.setItem(row, index, QtWidgets.QTableWidgetItem(str(item)))
-
     global add_new_row
 
     row_count = 0
@@ -113,7 +88,6 @@ def otherWindow(): #Создание новой карточки пациент�
         ui.tableWidget_diag.setItem(row_count-1, 3, QtWidgets.QTableWidgetItem(str(diag)))
 
     ui.add_to_diag_Button.clicked.connect(lambda sh, window=1:add_new_diagnosis(window)) #Кнопка открытия окна с полями для заполнения диагноза
-    ui.addButton.clicked.connect(load_info_from_file) #Кнопка загрузки данных из файла и вставка их в ячейки
     ui.save_to_fileButton.clicked.connect(save_to_file_Pat) #Кнопка сохранения данных из ячеек в виде файла
     ui.saveButton.clicked.connect(savePat) #Кнопка сохранения информациия занесённой в ячейках в базу данных
 
@@ -128,8 +102,11 @@ def add_new_diagnosis(window, name=''): #Окно для добавления н
     if window == 1:
         fields = receive_data()
         ui.patient_add_diag.setText(fields["name"])
-    else:
+    elif window == 1:
         ui.patient_add_diag.setText(name)
+    else:
+        fields = receive_data_file()
+        ui.patient_add_diag.setText(fields["name"])
 
     ui.patient_add_diag.setReadOnly(True)
 
@@ -137,24 +114,78 @@ def add_new_diagnosis(window, name=''): #Окно для добавления н
     def add_diagnosis_to_table():
         if window == 1:
             ui.patient_add_diag.setText(fields["name"])
-            add_new_row(ui.dateEdit_add_diag.dateTime().toString("dd.MM.yyyy"), ui.apart_add_diag.text(), fields["name"], ui.diagnosis_add_diag.text())
-        else:
+            add_new_row(ui.dateEdit_add_diag.dateTime().toString("dd.MM.yyyy"), ui.apart_add_diag.text(),
+                        fields["name"], ui.diagnosis_add_diag.toPlainText())
+        elif window == 2:
             ui.patient_add_diag.setText(name)
-            add_new_row_edit(ui.dateEdit_add_diag.dateTime().toString("dd.MM.yyyy"), ui.apart_add_diag.text(), name, ui.diagnosis_add_diag.text())
+            add_new_row_edit(ui.dateEdit_add_diag.dateTime().toString("dd.MM.yyyy"), ui.apart_add_diag.text(),
+                             name, ui.diagnosis_add_diag.toPlainText())
+        else:
+            ui.patient_add_diag.setText(fields["name"])
+            add_new_row_file(ui.dateEdit_add_diag.dateTime().toString("dd.MM.yyyy"), ui.apart_add_diag.text(),
+                        fields["name"], ui.diagnosis_add_diag.toPlainText())
         Dialog_add_diag.close()
 
     ui.add_to_table_Button.clicked.connect(add_diagnosis_to_table)
-def otherWindow_2(id): #Просмотр и редактирование карточки пациента
-    global Dialog_edit
-    Dialog_edit = QtWidgets.QDialog()
-    ui = Ui_Dialog_edit()
-    ui.setupUi(Dialog_edit)
-    Dialog_edit.show()
 
+def view_diagnosis(diag_id):
+    global Dialog_view_diag
+    Dialog_view_diag = QtWidgets.QDialog()
+    ui = Ui_Dialog_view_diag()
+    ui.setupUi(Dialog_view_diag)
+    Dialog_view_diag.show()
+
+    ui.patient_view_diag.setReadOnly(True)
+
+    """Получение всей инф. об диагнозе из таблицы БД"""
+    cursor.execute(f"SELECT date, apartment, full_name, diagnosis FROM patients join diagnoses using(patients_id) WHERE diagnosis_id = {diag_id}")
+    result = cursor.fetchall()
+
+    print(result)
+    """Заполнение ячеек данными полученых из БД"""
+    date = result[0][0].split('.')
+    ui.dateEdit_view_diag.setDate(QDate(int(date[2]), int(date[1]), int(date[0])))
+    ui.apart_view_diag.setText(str(result[0][1]))
+    ui.patient_view_diag.setText(str(result[0][2]))
+    ui.diagnosis_view_diag.setText(str(result[0][3]))
+
+    def switch(status=True):  # Функция для переключения статуса виджетов
+        if status:
+            ui.saveButton_view.setEnabled(False)
+        else:
+            ui.saveButton_view.setEnabled(True)
+        ui.apart_view_diag.setReadOnly(status)
+        ui.diagnosis_view_diag.setReadOnly(status)
+
+    def save_changes():
+        cursor.execute(
+            f"""UPDATE diagnoses SET date='{ui.dateEdit_view_diag.dateTime().toString("dd.MM.yyyy")}',
+                    apartment='{ui.apart_view_diag.text()}', diagnosis='{ui.diagnosis_view_diag.toPlainText()}' WHERE diagnosis_id={diag_id} """)
+        db.commit()
+        Dialog_view_diag.close()
+        diagnosesTable()
+
+    switch()
+
+    ui.editButton_view.clicked.connect(lambda sh, stat=False: switch(stat))
+    ui.saveButton_view.clicked.connect(save_changes)
+
+def otherWindow_2(id): #Просмотр и редактирование карточки пациента
+    global CardEdit
+    CardEdit = QtWidgets.QMainWindow()
+    ui = Ui_CardEdit()
+    ui.setupUi(CardEdit)
+    CardEdit.show()
 
     """Получение всей инф. об определенном пациенте из таблицы БД"""
     cursor.execute(f"SELECT * FROM patients WHERE patients_id = {id}")
     result = cursor.fetchall()
+
+    def load_index(index: QtCore.QModelIndex):
+        diag_id = index.siblingAtColumn(4).data(QtCore.Qt.ItemDataRole.DisplayRole)
+        view_diagnosis(diag_id)
+
+    ui.tableWidget_diag_edit.hideColumn(4)
 
     def switch(status=True): #Функция для переключения статуса виджетов
         if not status:
@@ -168,12 +199,14 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
             ui.addButton_2.setEnabled(True)
             ui.save_to_fileButton_2.setEnabled(False)
             ui.editButton.setEnabled(False)
+            ui.tableWidget_diag_edit.doubleClicked.disconnect()
         else:
             ui.comboBox_streets_2.clear()
             cursor.execute(f"SELECT * FROM patients WHERE patients_id = {id}")
             new_result = cursor.fetchall()
             ui.comboBox_streets_2.addItems([str(new_result[0][10])])
             ui.editButton.setEnabled(True)
+            ui.tableWidget_diag_edit.doubleClicked.connect(load_index)
 
         ui.street_name_2.setReadOnly(status)
         ui.affiliation_2.setReadOnly(status)
@@ -225,6 +258,7 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
         ui.save_to_fileButton_2.setEnabled(True)
         ui.addButton_2.setEnabled(True)
         switch()
+        diagnosesTable()
 
     switch() #Установка виджетов в статус ReadOnly
     ui.saveButton_2.setEnabled(False) #Кнопка сохранения не активна
@@ -244,9 +278,11 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
     ui.manager_2.setText(str(result[0][11]))
 
     def sql_diagnosis(): #Запрос на получение всех данных о пациенте по диагнозам
-        cursor.execute(f"""SELECT date, apartment, full_name, diagnosis 
-                                                FROM patients join diagnoses using(patients_id) where patients_id = {id}""")
+        cursor.execute(f"""SELECT date, apartment, full_name, diagnosis, diagnosis_id
+                                                FROM patients join diagnoses using(patients_id) where house_numb = {result[0][9]} and street = '{result[0][3]}' """)
         return cursor.fetchall()
+
+    global diagnosesTable
 
     def diagnosesTable(): #Таблица с диагнозами
         result = sql_diagnosis()
@@ -290,8 +326,8 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
                     ]
             json.dump([fields, table], out_file, indent=4, sort_keys=True)
 
-    def load_info_from_file_edit():
-        fname = QFileDialog().getOpenFileName(Dialog_edit, "Open", "save_cards", "Карточки формата json (*.json)")
+    def load_info_from_file_edit(): #Загрузка дополнительных данных из выбраного файла
+        fname = QFileDialog().getOpenFileName(CardEdit, "Open", "save_cards", "Карточки формата json (*.json)")
 
         if fname[0]:
             with open(f"{fname[0]}", "r") as out_file:
@@ -315,7 +351,126 @@ def otherWindow_2(id): #Просмотр и редактирование кар�
     ui.editButton.clicked.connect(lambda sh, stat=False: switch(stat)) #Кнопка для редактирования ячеек
     ui.saveButton_2.clicked.connect(editPat) #Кнопка сохранения
 
-def katalog(): #Главная страница со списком карточек
+def otherWindow_3(file_data): #Окно для просмотра файлов
+    global CardFile
+    CardFile = QtWidgets.QMainWindow()
+    ui = Ui_CardFile()
+    ui.setupUi(CardFile)
+    CardFile.show()
+
+    """Заполнение ячеек данными полученых из файла"""
+    ui.error.setText("")
+    ui.comboBox_streets_3.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])
+    ui.comboBox_streets_3.setCurrentText(file_data[0]["street_t"])
+    ui.street_name_3.setText(file_data[0]["street"])
+    ui.affiliation_3.setText(file_data[0]["affil"])
+    ui.mobile_1_3.setText(file_data[0]["mobile"])
+    ui.mobile_2_3.setText(file_data[0]["mobile_2"])
+    ui.work_phone_3.setText(file_data[0]["work_ph"])
+    ui.home_phone_3.setText(file_data[0]["home_ph"])
+    ui.general_chatacteristics_3.setText(file_data[0]["info"])
+    ui.house_number_3.setText(file_data[0]["house_numb"])
+    ui.pat_name_3.setText(file_data[0]["name"])
+    ui.manager_3.setText(file_data[0]["manag"])
+
+    if file_data[1]: #Проверка есть ли диагнозы, и заполнение таблицы
+        ui.tableWidget_diag_file.setRowCount(len(file_data[1]))
+        for row, items in enumerate(file_data[1].values()):
+            for index, item in enumerate(items):
+                ui.tableWidget_diag_file.setItem(row, index, QtWidgets.QTableWidgetItem(str(item)))
+
+    """Автонумирование для новой карточки пациента"""
+    cursor.execute("select max(patients_id) from patients")
+    result = cursor.fetchall()
+    new_pat_id = result[0][0] + 1
+
+    global receive_data_file
+
+    def receive_data_file():  #Присвоение переменных
+        fields = {
+            "name": ui.pat_name_3.text(),
+            "info": ui.general_chatacteristics_3.toPlainText(),
+            "street": ui.street_name_3.text(),
+            "affil": ui.affiliation_3.text(),
+            "mobile": ui.mobile_1_3.text(),
+            "mobile_2": ui.mobile_2_3.text(),
+            "work_ph": ui.work_phone_3.text(),
+            "home_ph": ui.home_phone_3.text(),
+            "house_numb": ui.house_number_3.text(),
+            "street_t": ui.comboBox_streets_3.currentText(),
+            "manag": ui.manager_3.toPlainText(),
+        }
+        return fields
+
+    def savePat(): #Внесение всей информации из ячеек в базу данных
+        fields = receive_data_file()
+        cursor.execute(f"""INSERT INTO patients(full_name, info, street, affiliation, mobile_1, mobile_2, w_phone, h_phone, house_numb, street_type, manager)
+                        VALUES("{fields['name']}", "{fields['info']}", "{fields['street']}", "{fields['affil']}", "{fields['mobile']}",
+                                "{fields['mobile_2']}", "{fields['work_ph']}", "{fields['home_ph']}", "{fields['house_numb']}",
+                                "{fields['street_t']}", "{fields['manag']}")""")
+        db.commit()
+
+        """Внесения в БД все записи из столбца с диагнозами"""
+        if ui.tableWidget_diag_file.rowCount() > 0:
+            for row in range(ui.tableWidget_diag_file.rowCount()):
+                cursor.execute(f"""INSERT INTO diagnoses(date, apartment, patients_id, diagnosis)
+                                            VALUES("{ui.tableWidget_diag_file.item(row, 0).text()}",
+                                            "{ui.tableWidget_diag_file.item(row, 1).text()}", "{new_pat_id}",
+                                            "{ui.tableWidget_diag_file.item(row, 3).text()}")""")
+                db.commit()
+        CardFile.close()
+
+    row_count = ui.tableWidget_diag_file.rowCount()
+
+    global add_new_row_file
+
+    def add_new_row_file(date, apart, name, diag):  # Добавление строки в тоблицу диагнозов данные из окна
+        nonlocal row_count
+        row_count += 1
+        ui.tableWidget_diag_file.setRowCount(row_count)
+        ui.tableWidget_diag_file.setItem(row_count - 1, 0, QtWidgets.QTableWidgetItem(str(date)))
+        ui.tableWidget_diag_file.setItem(row_count - 1, 1, QtWidgets.QTableWidgetItem(str(apart)))
+        ui.tableWidget_diag_file.setItem(row_count - 1, 2, QtWidgets.QTableWidgetItem(str(name)))
+        ui.tableWidget_diag_file.setItem(row_count - 1, 3, QtWidgets.QTableWidgetItem(str(diag)))
+
+    def add_info_to_card(): #Добавления доп. данных из файла в выбранную карточку
+        fields = receive_data_file()
+
+        cursor.execute("select * from patients ")
+        result = cursor.fetchall()
+
+        pat_id = ui.curd_numberBox.value()
+
+        if pat_id <= len(result):
+
+            cursor.execute(f"select * from patients where patients_id = {pat_id}")
+            result = cursor.fetchall()
+
+            new_info = f"{result[0][2]}\n{fields['info']}"
+
+            cursor.execute(
+                f"""UPDATE patients SET info='{new_info}' WHERE patients_id={pat_id}""")
+            db.commit()
+
+            """Внесения в БД все записи из столбца с диагнозами"""
+            if ui.tableWidget_diag_file.rowCount() > 0:
+                for row in range(ui.tableWidget_diag_file.rowCount()):
+                    cursor.execute(f"""INSERT INTO diagnoses(date, apartment, patients_id, diagnosis)
+                                                        VALUES("{ui.tableWidget_diag_file.item(row, 0).text()}",
+                                                        "{ui.tableWidget_diag_file.item(row, 1).text()}", "{pat_id}",
+                                                        "{ui.tableWidget_diag_file.item(row, 3).text()}")""")
+                    db.commit()
+            CardFile.close()
+        else:
+            ui.error.setText("Такої картки нема")
+
+
+
+    ui.add_to_diag_Button_3.clicked.connect(lambda sh, window=3: add_new_diagnosis(window))
+    ui.saveButton_3.clicked.connect(savePat)
+    ui.add_to_cardButton.clicked.connect(add_info_to_card)
+
+def katalog(): #Главная окно со списком карточек
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
@@ -346,7 +501,7 @@ def katalog(): #Главная страница со списком карточ
                     ui.tableWidget.setItem(row, index, QtWidgets.QTableWidgetItem(str(item)))
 
             """Создание и добавление кнопки в таблицу на открытие карточки пациента"""
-            button = QtWidgets.QPushButton('Review')
+            button = QtWidgets.QPushButton('Перегляд')
             button.clicked.connect(lambda sh, id=items[0]: otherWindow_2(id))
             ui.tableWidget.setCellWidget(row, 4, button)
         ui.tableWidget.setSortingEnabled(False)
@@ -358,6 +513,16 @@ def katalog(): #Главная страница со списком карточ
 
     updateTable()
 
+    def load_info_from_file(): #Загрузка из файла типа json всех данных и добавление их в ячейки
+        fname = QFileDialog().getOpenFileName(MainWindow, "Open", "save_cards", "Карточки формата json (*.json)")
+
+        if fname[0]:
+            with open(f"{fname[0]}", "r") as out_file:
+                data = json.load(out_file)
+                print(data)
+                otherWindow_3(data)
+
+    ui.view_fileButton.clicked.connect(load_info_from_file) #Кнопка для просмотра файла
     ui.sortButton.clicked.connect(sort_table) #Кнопка сортировки столбцов
     ui.updateButton.clicked.connect(updateTable) #Кнопка обновление таблицы
     ui.pushButton.clicked.connect(otherWindow) #Подключение к кнопке открытие нового окна на добавление новой карточки

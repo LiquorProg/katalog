@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog_add_diag</class>
- <widget class="QDialog" name="Dialog_add_diag">
+ <class>Dialog_view_diag</class>
+ <widget class="QDialog" name="Dialog_view_diag">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>497</width>
+    <width>499</width>
     <height>259</height>
    </rect>
   </property>
@@ -22,32 +22,17 @@
   <layout class="QFormLayout" name="formLayout_2">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <property name="horizontalSpacing">
-      <number>4</number>
-     </property>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="apart_add_diag">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
+      <widget class="QLineEdit" name="apart_view_diag">
        <property name="font">
         <font>
          <pointsize>11</pointsize>
         </font>
        </property>
-       <property name="maxLength">
-        <number>10</number>
-       </property>
       </widget>
      </item>
      <item row="0" column="0">
-      <widget class="QLabel" name="label_10">
+      <widget class="QLabel" name="label_10_view">
        <property name="font">
         <font>
          <pointsize>12</pointsize>
@@ -71,7 +56,7 @@
       </widget>
      </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="label_12">
+      <widget class="QLabel" name="label_12_view">
        <property name="font">
         <font>
          <pointsize>12</pointsize>
@@ -92,27 +77,18 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="patient_add_diag">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
+      <widget class="QLineEdit" name="patient_view_diag">
        <property name="font">
         <font>
          <pointsize>11</pointsize>
         </font>
        </property>
-       <property name="maxLength">
-        <number>20</number>
-       </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QDateEdit" name="dateEdit_add_diag">
+      <widget class="QDateEdit" name="dateEdit_view_diag">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -138,7 +114,7 @@
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="label_11">
+      <widget class="QLabel" name="label_11_view">
        <property name="font">
         <font>
          <pointsize>12</pointsize>
@@ -163,7 +139,7 @@
    <item row="1" column="0" colspan="2">
     <layout class="QFormLayout" name="formLayout">
      <item row="0" column="0">
-      <widget class="QLabel" name="label_13">
+      <widget class="QLabel" name="label_13_view">
        <property name="font">
         <font>
          <pointsize>12</pointsize>
@@ -184,7 +160,7 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QTextEdit" name="diagnosis_add_diag">
+      <widget class="QTextEdit" name="diagnosis_view_diag">
        <property name="font">
         <font>
          <pointsize>11</pointsize>
@@ -194,36 +170,70 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
-    <spacer name="horizontalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>390</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item row="2" column="1">
-    <widget class="QPushButton" name="add_to_table_Button">
-     <property name="maximumSize">
-      <size>
-       <width>100</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>11</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Додати</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="editButton_view">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Редагувати</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="saveButton_view">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Зберегти</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
