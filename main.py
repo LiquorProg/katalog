@@ -22,9 +22,12 @@ def otherWindow(): #Создание новой карточки пациент�
     ui.comboBox_streets.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])#Комбобокс с вариантами назв. улиц
 
     """Автонумирование для новой карточки пациента"""
-    cursor.execute("select max(patients_id) from patients")
-    result = cursor.fetchall()
-    new_pat_id = result[0][0]+1
+    try:
+        cursor.execute("select max(patients_id) from patients")
+        result = cursor.fetchall()
+        new_pat_id = result[0][0]+1
+    except:
+        new_pat_id = 1
 
     global receive_data
 
