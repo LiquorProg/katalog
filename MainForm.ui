@@ -112,7 +112,7 @@
            </font>
           </property>
           <property name="text">
-           <string>сортування</string>
+           <string>сорт.</string>
           </property>
          </widget>
         </item>
@@ -165,7 +165,19 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QLineEdit" name="search_house"/>
+         <widget class="QLineEdit" name="search_house">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+         </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_6">
@@ -183,7 +195,19 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QLineEdit" name="search_street"/>
+         <widget class="QLineEdit" name="search_street">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+         </widget>
         </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_4">
@@ -201,7 +225,19 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QLineEdit" name="search_patient"/>
+         <widget class="QLineEdit" name="search_patient">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+         </widget>
         </item>
         <item row="3" column="0">
          <widget class="QLabel" name="label_7">
@@ -219,7 +255,19 @@
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QLineEdit" name="search_manager"/>
+         <widget class="QLineEdit" name="search_manager">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+         </widget>
         </item>
         <item row="4" column="0" colspan="2">
          <widget class="QPushButton" name="searchButton">
@@ -285,7 +333,7 @@
          <widget class="QPushButton" name="pushButton">
           <property name="minimumSize">
            <size>
-            <width>150</width>
+            <width>185</width>
             <height>30</height>
            </size>
           </property>

@@ -17,8 +17,32 @@
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="5" column="2">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
+      <property name="leftMargin">
+       <number>96</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QLabel" name="label_9_3">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>12</pointsize>
@@ -34,6 +58,12 @@
       </item>
       <item>
        <widget class="QLineEdit" name="pat_name_3">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
           <pointsize>11</pointsize>
@@ -101,7 +131,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>30</width>
+          <width>50</width>
           <height>16777215</height>
          </size>
         </property>
@@ -116,6 +146,24 @@
     </item>
     <item row="1" column="1" colspan="2">
      <layout class="QFormLayout" name="formLayout_2">
+      <property name="labelAlignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+      </property>
+      <property name="formAlignment">
+       <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
+      </property>
+      <property name="horizontalSpacing">
+       <number>6</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>6</number>
+      </property>
+      <property name="rightMargin">
+       <number>7</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="label_4_3">
         <property name="font">
@@ -133,6 +181,12 @@
       </item>
       <item row="0" column="1">
        <widget class="QLineEdit" name="affiliation_3">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
           <pointsize>11</pointsize>
@@ -144,6 +198,15 @@
     </item>
     <item row="2" column="1" colspan="2">
      <layout class="QFormLayout" name="formLayout">
+      <property name="formAlignment">
+       <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
+      </property>
+      <property name="horizontalSpacing">
+       <number>6</number>
+      </property>
+      <property name="rightMargin">
+       <number>7</number>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="label_5_3">
         <property name="font">
@@ -161,6 +224,12 @@
       </item>
       <item row="0" column="1">
        <widget class="QTextEdit" name="manager_3">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
@@ -178,18 +247,6 @@
     </item>
     <item row="4" column="0" colspan="3">
      <layout class="QFormLayout" name="formLayout_4">
-      <item row="1" column="0">
-       <widget class="QPushButton" name="add_to_diag_Button_3">
-        <property name="font">
-         <font>
-          <pointsize>13</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>+</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0" colspan="2">
        <widget class="QTableWidget" name="tableWidget_diag_file">
         <property name="font">
@@ -234,12 +291,52 @@
         </column>
        </widget>
       </item>
+      <item row="1" column="0">
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="1">
+         <widget class="QPushButton" name="del_from_diag_Button_2">
+          <property name="font">
+           <font>
+            <pointsize>13</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>-</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QPushButton" name="add_to_diag_Button_3">
+          <property name="font">
+           <font>
+            <pointsize>13</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>+</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
      </layout>
     </item>
     <item row="0" column="0">
      <layout class="QFormLayout" name="formLayout_3">
       <item row="0" column="0">
        <widget class="QComboBox" name="comboBox_streets_3">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>110</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>11</pointsize>
@@ -322,7 +419,7 @@
        <widget class="QSpinBox" name="curd_numberBox">
         <property name="minimumSize">
          <size>
-          <width>70</width>
+          <width>80</width>
           <height>0</height>
          </size>
         </property>
@@ -375,6 +472,18 @@
        <layout class="QGridLayout" name="gridLayout">
         <item row="1" column="4">
          <widget class="QLineEdit" name="mobile_2_3">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <pointsize>11</pointsize>
@@ -440,6 +549,24 @@
         </item>
         <item row="0" column="4">
          <widget class="QLineEdit" name="mobile_1_3">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>1</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <pointsize>11</pointsize>
@@ -480,6 +607,18 @@
         </item>
         <item row="1" column="6">
          <widget class="QLineEdit" name="home_phone_3">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <pointsize>11</pointsize>
@@ -489,6 +628,18 @@
         </item>
         <item row="0" column="6">
          <widget class="QLineEdit" name="work_phone_3">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <pointsize>11</pointsize>
@@ -601,8 +752,17 @@ p, li { white-space: pre-wrap; }
     </item>
     <item row="7" column="2">
      <layout class="QFormLayout" name="formLayout_6">
+      <property name="labelAlignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+      <property name="formAlignment">
+       <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
+      </property>
       <property name="horizontalSpacing">
-       <number>28</number>
+       <number>39</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>24</number>
       </property>
       <item row="0" column="1">
        <spacer name="verticalSpacer_2">

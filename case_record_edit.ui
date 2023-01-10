@@ -70,7 +70,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>30</width>
+          <width>50</width>
           <height>16777215</height>
          </size>
         </property>
@@ -85,6 +85,9 @@
     </item>
     <item row="5" column="2">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="leftMargin">
+       <number>96</number>
+      </property>
       <item>
        <widget class="QLabel" name="label_9_2">
         <property name="font">
@@ -102,6 +105,12 @@
       </item>
       <item>
        <widget class="QLineEdit" name="pat_name_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
           <pointsize>11</pointsize>
@@ -116,6 +125,12 @@
     </item>
     <item row="1" column="1" colspan="2">
      <layout class="QFormLayout" name="formLayout_2">
+      <property name="formAlignment">
+       <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
+      </property>
+      <property name="rightMargin">
+       <number>7</number>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="label_4_2">
         <property name="font">
@@ -133,6 +148,12 @@
       </item>
       <item row="0" column="1">
        <widget class="QLineEdit" name="affiliation_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
           <pointsize>11</pointsize>
@@ -144,6 +165,12 @@
     </item>
     <item row="2" column="1" colspan="2">
      <layout class="QFormLayout" name="formLayout">
+      <property name="formAlignment">
+       <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
+      </property>
+      <property name="rightMargin">
+       <number>7</number>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="label_5_2">
         <property name="font">
@@ -161,6 +188,12 @@
       </item>
       <item row="0" column="1">
        <widget class="QTextEdit" name="manager_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
@@ -262,6 +295,18 @@
         </item>
         <item row="1" column="6">
          <widget class="QLineEdit" name="home_phone_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <pointsize>11</pointsize>
@@ -271,6 +316,18 @@
         </item>
         <item row="0" column="6">
          <widget class="QLineEdit" name="work_phone_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <pointsize>11</pointsize>
@@ -283,6 +340,18 @@
         </item>
         <item row="0" column="4">
          <widget class="QLineEdit" name="mobile_1_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <pointsize>11</pointsize>
@@ -295,6 +364,18 @@
         </item>
         <item row="1" column="4">
          <widget class="QLineEdit" name="mobile_2_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <pointsize>11</pointsize>
@@ -475,6 +556,12 @@ p, li { white-space: pre-wrap; }
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="1">
        <widget class="QComboBox" name="comboBox_streets_2">
+        <property name="minimumSize">
+         <size>
+          <width>110</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>11</pointsize>
@@ -504,7 +591,7 @@ p, li { white-space: pre-wrap; }
        <widget class="QLabel" name="card_number_2">
         <property name="minimumSize">
          <size>
-          <width>60</width>
+          <width>95</width>
           <height>0</height>
          </size>
         </property>
