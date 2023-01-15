@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog_view_diag(object):
     def setupUi(self, Dialog_view_diag):
         Dialog_view_diag.setObjectName("Dialog_view_diag")
-        Dialog_view_diag.resize(499, 259)
+        Dialog_view_diag.resize(500, 0)
         Dialog_view_diag.setMinimumSize(QtCore.QSize(0, 0))
         self.formLayout_2 = QtWidgets.QFormLayout(Dialog_view_diag)
         self.formLayout_2.setObjectName("formLayout_2")

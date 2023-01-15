@@ -1,6 +1,10 @@
+import os
+import shutil
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QDate
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QVBoxLayout, QLabel, QWidget
+from PyQt5.QtGui import QPixmap
 
 from MainForm import Ui_MainWindow
 from case_record import Ui_CardNew
@@ -8,10 +12,10 @@ from case_record_edit import Ui_CardEdit
 from case_record_file import Ui_CardFile
 from diagnosis import Ui_Dialog_add_diag
 from diagnosis_view import Ui_Dialog_view_diag
+from photo_list import Ui_PhotoList
 import sqlite3
 import sys
 import json
-
 
 def otherWindow():  # Создание новой карточки пациента
     global CardNew
@@ -21,7 +25,14 @@ def otherWindow():  # Создание новой карточки пациен�
     CardNew.show()
 
     ui.comboBox_streets.addItems(
-        ["вулиця", "провулок", "бульвар", "шоссе", "проспект"])  # Комбобокс с вариантами назв. улиц
+        ["вулиця", "провулок", "бульвар", "шоссе", "проспект"])  # Комбобокс с типами улиц
+
+    """SQL запрос на название всех улиц, сортировка и назначение этого списка на комбобокс"""
+    cursor.execute("select street_name from streets")
+    result = cursor.fetchall()
+    street_list = sorted([i[0] for i in result])
+
+    ui.comboBox_streets_name.addItems(street_list)  # Комбобокс с назв. улиц
 
     """Автонумирование для новой карточки пациента"""
     try:
@@ -37,7 +48,7 @@ def otherWindow():  # Создание новой карточки пациен�
         fields = {
             "name": ui.pat_name.text(),
             "info": ui.general_chatacteristics.toPlainText(),
-            "street": ui.street_name.text(),
+            "street": ui.comboBox_streets_name.currentText(),
             "affil": ui.affiliation.text(),
             "mobile": ui.mobile_1.text(),
             "mobile_2": ui.mobile_2.text(),
@@ -57,6 +68,10 @@ def otherWindow():  # Создание новой карточки пациен�
                                 "{fields['street_t']}", "{fields['manag']}")""")
         db.commit()
 
+        if fields['street'] not in street_list and fields['street'] != '':  # Если улицы нет в базе данных, то она туда добавляется
+            cursor.execute(f"""INSERT INTO streets(street_name) VALUES("{fields['street']}")""")
+            db.commit()
+
         """Внесения в БД все записи из столбца с диагнозами"""
         if ui.tableWidget_diag.rowCount() > 0:
             for row in range(ui.tableWidget_diag.rowCount()):
@@ -69,7 +84,7 @@ def otherWindow():  # Создание новой карточки пациен�
 
     def save_to_file_Pat():  # Сохранение всей информации пациента в формате json
         fields = receive_data()
-        with open(f"save_cards/{fields['name']}({fields['street']}, {fields['house_numb']}).json", "w") as out_file:
+        with open(f"save_cards/{fields['name']}({fields['street_t']} {fields['street']}, {fields['house_numb']}).json", "w") as out_file:
             table = {}
             if ui.tableWidget_diag.rowCount() > 0:
                 for row in range(ui.tableWidget_diag.rowCount()):
@@ -254,22 +269,41 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
             ui.comboBox_streets_2.clear()
             cursor.execute(f"SELECT * FROM patients WHERE patients_id = {id}")
             new_result = cursor.fetchall()
+
             ui.comboBox_streets_2.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])
             ui.comboBox_streets_2.setCurrentText(str(new_result[0][10]))
+
+            """SQL запрос на название всех улиц, сортировка и назначение этого списка на комбобокс"""
+            cursor.execute("select street_name from streets")
+            result = cursor.fetchall()
+            street_list = sorted([i[0] for i in result])
+
+            if new_result[0][3] not in street_list:
+                street_list.append(new_result[0][3])
+
+            ui.comboBox_streets_name_2.clear()
+            ui.comboBox_streets_name_2.addItems(street_list)  # Комбобокс с назв. улиц
+            ui.comboBox_streets_name_2.setCurrentText(str(new_result[0][3]))
+            ui.comboBox_streets_name_2.setEditable(True)
+
             ui.saveButton_2.setEnabled(True)
             ui.addButton_2.setEnabled(True)
             ui.save_to_fileButton_2.setEnabled(False)
             ui.editButton.setEnabled(False)
         else:
             ui.comboBox_streets_2.clear()
+            ui.comboBox_streets_name_2.clear()
+
             cursor.execute(f"SELECT * FROM patients WHERE patients_id = {id}")
             new_result = cursor.fetchall()
+
             ui.comboBox_streets_2.addItems([str(new_result[0][10])])
+            ui.comboBox_streets_name_2.addItems([str(new_result[0][3])])
+            ui.comboBox_streets_name_2.setEditable(False)
             ui.editButton.setEnabled(True)
             ui.addButton_2.setEnabled(False)
             ui.tableWidget_diag_edit.doubleClicked.connect(load_index)
 
-        ui.street_name_2.setReadOnly(status)
         ui.affiliation_2.setReadOnly(status)
         ui.mobile_1_2.setReadOnly(status)
         ui.mobile_2_2.setReadOnly(status)
@@ -284,7 +318,7 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
         fields = {
             "name": ui.pat_name_2.text(),
             "info": ui.general_chatacteristics_2.toPlainText(),
-            "street": ui.street_name_2.text(),
+            "street": ui.comboBox_streets_name_2.currentText(),
             "affil": ui.affiliation_2.text(),
             "mobile": ui.mobile_1_2.text(),
             "mobile_2": ui.mobile_2_2.text(),
@@ -304,6 +338,15 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
                         house_numb={fields["house_numb"]}, street_type='{fields["street_t"]}', manager='{fields["manag"]}' WHERE patients_id={id}""")
         db.commit()
 
+        """SQL запрос на название всех улиц"""
+        cursor.execute("select street_name from streets")
+        result = cursor.fetchall()
+        street_list = [i[0] for i in result]
+
+        if fields['street'] not in street_list and fields['street'] != '':  # Если улицы нет в базе данных, то она туда добавляется
+            cursor.execute(f"""INSERT INTO streets(street_name) VALUES("{fields['street']}")""")
+            db.commit()
+
         """Обратный переход в режим просмотра"""
         ui.saveButton_2.setEnabled(False)
         ui.addButton_2.setEnabled(False)
@@ -317,8 +360,7 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
     ui.addButton_2.setEnabled(False)  # Кнопка добавления доп. информации из файла не активна
 
     """Заполнение ячеек данными полученых из БД"""
-    ui.card_number_2.setText(f"№{result[0][0]}")
-    ui.street_name_2.setText(str(result[0][3]))
+    ui.card_number_2.setText(f"№ {result[0][0]}")
     ui.affiliation_2.setText(str(result[0][4]))
     ui.mobile_1_2.setText(str(result[0][5]))
     ui.mobile_2_2.setText(str(result[0][6]))
@@ -330,6 +372,10 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
     ui.manager_2.setText(str(result[0][11]))
 
     def sql_diagnosis():  # Запрос на получение всех данных о пациенте по диагнозам
+        """Получение обновленных данных о пациенте, для корректного заполнения таблицы диагнозов"""
+        cursor.execute(f"SELECT * FROM patients WHERE patients_id = {id}")
+        result = cursor.fetchall()
+
         cursor.execute(f"""SELECT date, apartment, full_name, diagnosis, diagnosis_id
                                                 FROM patients join diagnoses using(patients_id) where house_numb = {result[0][9]} and street = '{result[0][3]}' """)
         return cursor.fetchall()
@@ -338,20 +384,19 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
 
     def diagnosesTable():  # Таблица с диагнозами
         result = sql_diagnosis()
-        print(result)
+        sorted_result = sorted(result, key=lambda x: list(map(int, x[0].split('.')[::-1])), reverse=True)
 
         """Заполнение таблицы"""
-        ui.tableWidget_diag_edit.setRowCount(len(result))
-        for row, items in enumerate(result):
+        ui.tableWidget_diag_edit.setRowCount(len(sorted_result))
+        for row, items in enumerate(sorted_result):
             for index, item in enumerate(items):
                 ui.tableWidget_diag_edit.setItem(row, index, QtWidgets.QTableWidgetItem(str(item)))
-        return len(result)
 
     diagnosesTable()  # Вызов функции для заполнения таблицы
 
     def save_to_file_Pat_edit():  # Сохранение всей информации пациента в формате json
         fields = receive_data()
-        with open(f"save_cards/{fields['name']}({fields['street']}, {fields['house_numb']}).json", "w") as out_file:
+        with open(f"save_cards/{fields['name']}({fields['street_t']} {fields['street']}, {fields['house_numb']}).json", "w") as out_file:
             table = {}
             if ui.tableWidget_diag_edit.rowCount() > 0:
                 for row in range(ui.tableWidget_diag_edit.rowCount()):
@@ -383,6 +428,7 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
                                                              QtWidgets.QTableWidgetItem(str(item)))
                 ui.addButton_2.setEnabled(False)
 
+    ui.photoButton.clicked.connect(lambda sh, pat_id=id: photoWindow(pat_id))
     ui.addButton_2.clicked.connect(load_info_from_file_edit)  # Кнопка добавления информации в карточку из файла
     ui.save_to_fileButton_2.clicked.connect(save_to_file_Pat_edit)  # Кнопка сохранения информации в виде файла
     ui.add_to_diag_Button_2.clicked.connect(
@@ -390,6 +436,45 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
                                                                                    card_id))  # Кнопка для открытия нового окна для создания новой записи таблицы диагнозов
     ui.editButton.clicked.connect(lambda sh, stat=False: switch(stat))  # Кнопка для редактирования ячеек
     ui.saveButton_2.clicked.connect(editPat)  # Кнопка сохранения
+
+def photoWindow(id):
+    global PhotoList
+    PhotoList = QtWidgets.QDialog()
+    ui = Ui_PhotoList()
+    ui.setupUi(PhotoList)
+    PhotoList.show()
+
+    direct = f"photo_storage/patient(№{id})"  # Место хранения фотографий
+
+    """Проверки на наличия папки пациента, если папки нет то создание ёё"""
+    if not os.path.isdir(direct):
+        os.mkdir(direct)
+
+    def filling():  # Заполнение scrollArea фотографиями из папки пациента
+        lst_photo = os.listdir(direct)
+
+        pnl = QWidget(PhotoList)
+        vbox = QVBoxLayout(PhotoList)
+
+        for file_name in lst_photo:
+            pixmap = QPixmap(f"{direct}/{file_name}")
+            lbl = QLabel()
+            lbl.setPixmap(pixmap)
+            lbl.resize(pixmap.width(), pixmap.height())
+            vbox.addWidget(lbl)
+
+        pnl.setLayout(vbox)
+        ui.scrollArea.setWidget(pnl)
+
+    filling()
+    def load_photo(): # Загрузка фотографии в папку пациента
+        fname = QFileDialog().getOpenFileName(PhotoList, "Open", ".", "Фотографии (*.png *.jpg *.bmp)")
+        if fname[0]:
+            shutil.copy(fname[0], direct)
+            filling()
+
+    ui.updateButton.clicked.connect(filling)  # Кнопка обновления списка фотографий
+    ui.loadButton.clicked.connect(load_photo)  # Кнопка выбора фотографии и загрузки ёё в папку
 
 
 def otherWindow_3(file_data):  # Окно для просмотра файлов
@@ -403,7 +488,16 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
     ui.error.setText("")
     ui.comboBox_streets_3.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])
     ui.comboBox_streets_3.setCurrentText(file_data[0]["street_t"])
-    ui.street_name_3.setText(file_data[0]["street"])
+
+    cursor.execute("select street_name from streets")
+    result = cursor.fetchall()
+    street_list = sorted([i[0] for i in result])
+
+    if file_data[0]["street"] not in street_list:
+        street_list.append(file_data[0]["street"])
+
+    ui.comboBox_streets_name_3.addItems(street_list)
+    ui.comboBox_streets_name_3.setCurrentText(file_data[0]["street"])
     ui.affiliation_3.setText(file_data[0]["affil"])
     ui.mobile_1_3.setText(file_data[0]["mobile"])
     ui.mobile_2_3.setText(file_data[0]["mobile_2"])
@@ -431,7 +525,7 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
         fields = {
             "name": ui.pat_name_3.text(),
             "info": ui.general_chatacteristics_3.toPlainText(),
-            "street": ui.street_name_3.text(),
+            "street": ui.comboBox_streets_name_3.currentText(),
             "affil": ui.affiliation_3.text(),
             "mobile": ui.mobile_1_3.text(),
             "mobile_2": ui.mobile_2_3.text(),
@@ -450,6 +544,10 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
                                 "{fields['mobile_2']}", "{fields['work_ph']}", "{fields['home_ph']}", "{fields['house_numb']}",
                                 "{fields['street_t']}", "{fields['manag']}")""")
         db.commit()
+
+        if fields['street'] not in street_list and fields['street'] != '':  # Если улицы нет в базе данных, то она туда добавляется
+            cursor.execute(f"""INSERT INTO streets(street_name) VALUES("{fields['street']}")""")
+            db.commit()
 
         """Внесения в БД все записи из столбца с диагнозами"""
         if ui.tableWidget_diag_file.rowCount() > 0:
@@ -527,7 +625,8 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
         ui.tableWidget_diag_file.setItem(row, 2, QtWidgets.QTableWidgetItem(name["name"]))
         ui.tableWidget_diag_file.setItem(row, 3, QtWidgets.QTableWidgetItem(items[2]))
 
-    ui.tableWidget_diag_file.doubleClicked.connect(load_row_index)
+
+    ui.tableWidget_diag_file.doubleClicked.connect(load_row_index) # Открытие окна ред. диагноза на двойное нажатие на ячейку таблицы
     ui.del_from_diag_Button_2.clicked.connect(del_row)  # Кнопка удаления строки
     ui.add_to_diag_Button_3.clicked.connect(
         lambda sh, window=3: add_new_diagnosis(window))  # Кнопка добавления новой строки в табл. диагнозов
@@ -585,7 +684,6 @@ def katalog():  # Главная окно со списком карточек
         if fname[0]:
             with open(f"{fname[0]}", "r") as out_file:
                 data = json.load(out_file)
-                print(data)
                 otherWindow_3(data)
 
     ui.view_fileButton.clicked.connect(load_info_from_file)  # Кнопка для просмотра файла

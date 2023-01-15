@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>758</width>
+    <width>787</width>
     <height>839</height>
    </rect>
   </property>
@@ -247,7 +247,10 @@
     </item>
     <item row="4" column="0" colspan="3">
      <layout class="QFormLayout" name="formLayout_4">
-      <item row="0" column="0" colspan="2">
+      <property name="topMargin">
+       <number>12</number>
+      </property>
+      <item row="1" column="0" colspan="2">
        <widget class="QTableWidget" name="tableWidget_diag_file">
         <property name="font">
          <font>
@@ -291,7 +294,7 @@
         </column>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="0" column="1">
          <widget class="QPushButton" name="del_from_diag_Button_2">
@@ -316,6 +319,66 @@
            <string>+</string>
           </property>
          </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="0" colspan="2">
+       <layout class="QGridLayout" name="gridLayout_7">
+        <item row="0" column="2">
+         <spacer name="horizontalSpacer_10">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="label_3">
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="text">
+           <string>ДЖ</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <spacer name="horizontalSpacer_11">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </item>
@@ -345,20 +408,26 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="street_name_3">
+       <widget class="QComboBox" name="comboBox_streets_name_3">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="font">
          <font>
           <pointsize>11</pointsize>
          </font>
         </property>
-        <property name="cursor">
-         <cursorShape>IBeamCursor</cursorShape>
-        </property>
-        <property name="mouseTracking">
+        <property name="tabletTracking">
          <bool>true</bool>
         </property>
-        <property name="text">
-         <string/>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
         </property>
        </widget>
       </item>
@@ -667,6 +736,9 @@
           <property name="styleSheet">
            <string notr="true">background-color: rgb(234, 255, 205);</string>
           </property>
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
           <property name="text">
            <string>Загальна характеристика</string>
           </property>
@@ -699,6 +771,9 @@
         </property>
         <property name="mouseTracking">
          <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
         </property>
         <property name="html">
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -826,7 +901,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>758</width>
+     <width>786</width>
      <height>21</height>
     </rect>
    </property>
