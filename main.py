@@ -515,9 +515,12 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
                 ui.tableWidget_diag_file.setItem(row, index, QtWidgets.QTableWidgetItem(str(item)))
 
     """Автонумирование для новой карточки пациента"""
-    cursor.execute("select max(patients_id) from patients")
-    result = cursor.fetchall()
-    new_pat_id = result[0][0] + 1
+    try:
+        cursor.execute("select max(patients_id) from patients")
+        result = cursor.fetchall()
+        new_pat_id = result[0][0] + 1
+    except:
+        new_pat_id = 1
 
     global receive_data_file
 
