@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>787</width>
-    <height>849</height>
+    <width>1181</width>
+    <height>850</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -78,6 +78,21 @@
         <column>
          <property name="text">
           <string>Номер картки</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Область</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Район</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Населений пункт</string>
          </property>
         </column>
         <column>
@@ -315,8 +330,8 @@
          <widget class="QPushButton" name="view_fileButton">
           <property name="minimumSize">
            <size>
-            <width>150</width>
-            <height>30</height>
+            <width>170</width>
+            <height>32</height>
            </size>
           </property>
           <property name="font">
@@ -333,8 +348,8 @@
          <widget class="QPushButton" name="pushButton">
           <property name="minimumSize">
            <size>
-            <width>185</width>
-            <height>30</height>
+            <width>205</width>
+            <height>32</height>
            </size>
           </property>
           <property name="font">
@@ -371,7 +386,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>787</width>
+     <width>1181</width>
      <height>21</height>
     </rect>
    </property>
