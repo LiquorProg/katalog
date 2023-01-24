@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'case_record_file.ui'
+# Form implementation generated from reading ui file 'pyqt_files\case_record_file.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.7
 #
@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_CardFile(object):
     def setupUi(self, CardFile):
         CardFile.setObjectName("CardFile")
-        CardFile.resize(888, 978)
+        CardFile.resize(888, 980)
         self.centralwidget = QtWidgets.QWidget(CardFile)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)

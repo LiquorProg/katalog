@@ -1,21 +1,20 @@
 import os
-import shutil
+import sqlite3
+import sys
+import json
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QDate
 from PyQt5.QtWidgets import QFileDialog, QVBoxLayout, QLabel, QWidget
 from PyQt5.QtGui import QPixmap
 
-from MainForm import Ui_MainWindow
-from case_record import Ui_CardNew
-from case_record_edit import Ui_CardEdit
-from case_record_file import Ui_CardFile
-from diagnosis import Ui_Dialog_add_diag
-from diagnosis_view import Ui_Dialog_view_diag
-from photo import Ui_photo
-import sqlite3
-import sys
-import json
+from pyqt_files.MainForm import Ui_MainWindow
+from pyqt_files.case_record import Ui_CardNew
+from pyqt_files.case_record_edit import Ui_CardEdit
+from pyqt_files.case_record_file import Ui_CardFile
+from pyqt_files.diagnosis import Ui_Dialog_add_diag
+from pyqt_files.diagnosis_view import Ui_Dialog_view_diag
+from pyqt_files.photo import Ui_photo
 
 def otherWindow():  # Создание новой карточки пациента
     global CardNew

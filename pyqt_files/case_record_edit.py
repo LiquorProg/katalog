@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'case_record_edit.ui'
+# Form implementation generated from reading ui file 'pyqt_files\case_record_edit.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.7
 #
@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_CardEdit(object):
     def setupUi(self, CardEdit):
         CardEdit.setObjectName("CardEdit")
-        CardEdit.resize(889, 964)
+        CardEdit.resize(889, 980)
         self.centralwidget = QtWidgets.QWidget(CardEdit)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -501,7 +501,7 @@ class Ui_CardEdit(object):
         self.label_5_2.setText(_translate("CardEdit", "Керівник"))
         self.addButton_2.setText(_translate("CardEdit", "Додати із файлу"))
         self.save_to_fileButton_2.setText(_translate("CardEdit", "Зберегти як файл"))
-        self.photoButton.setText(_translate("CardEdit", "Photo"))
+        self.photoButton.setText(_translate("CardEdit", "Фото"))
         self.error_save_file.setText(_translate("CardEdit", "TextLabel"))
         self.saveButton_2.setText(_translate("CardEdit", "Зберегти"))
         self.editButton.setText(_translate("CardEdit", "Редагувати"))

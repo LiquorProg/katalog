@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'case_record.ui'
+# Form implementation generated from reading ui file 'pyqt_files\case_record.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.7
 #
@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_CardNew(object):
     def setupUi(self, CardNew):
         CardNew.setObjectName("CardNew")
-        CardNew.resize(891, 975)
+        CardNew.resize(891, 980)
         self.centralwidget = QtWidgets.QWidget(CardNew)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -469,7 +469,7 @@ class Ui_CardNew(object):
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\"><br /></p></body></html>"))
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>"))
         item = self.tableWidget_diag.horizontalHeaderItem(0)
         item.setText(_translate("CardNew", "Дата"))
         item = self.tableWidget_diag.horizontalHeaderItem(1)

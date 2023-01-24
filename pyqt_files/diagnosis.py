@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'diagnosis.ui'
+# Form implementation generated from reading ui file 'pyqt_files\diagnosis.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.7
 #

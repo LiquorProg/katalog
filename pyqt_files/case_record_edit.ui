@@ -659,7 +659,7 @@ p, li { white-space: pre-wrap; }
          </font>
         </property>
         <property name="text">
-         <string>Photo</string>
+         <string>Фото</string>
         </property>
        </widget>
       </item>
