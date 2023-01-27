@@ -327,6 +327,24 @@
          </spacer>
         </item>
         <item>
+         <widget class="QPushButton" name="address_listsButton">
+          <property name="minimumSize">
+           <size>
+            <width>170</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Списки адрес</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="view_fileButton">
           <property name="minimumSize">
            <size>

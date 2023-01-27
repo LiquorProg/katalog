@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>0</height>
+    <height>218</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -155,7 +155,10 @@
     </layout>
    </item>
    <item row="1" column="0" colspan="2">
-    <layout class="QFormLayout" name="formLayout">
+    <layout class="QGridLayout" name="gridLayout_2">
+     <property name="horizontalSpacing">
+      <number>8</number>
+     </property>
      <item row="0" column="0">
       <widget class="QLabel" name="label_13_view">
        <property name="font">
@@ -171,6 +174,9 @@
        </property>
        <property name="textFormat">
         <enum>Qt::PlainText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
        </property>
        <property name="margin">
         <number>2</number>

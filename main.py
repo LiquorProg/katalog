@@ -15,6 +15,7 @@ from pyqt_files.case_record_file import Ui_CardFile
 from pyqt_files.diagnosis import Ui_Dialog_add_diag
 from pyqt_files.diagnosis_view import Ui_Dialog_view_diag
 from pyqt_files.photo import Ui_photo
+from pyqt_files.address_lists import Ui_Address_listsWindow
 
 def otherWindow():  # Создание новой карточки пациента
     global CardNew
@@ -26,7 +27,6 @@ def otherWindow():  # Создание новой карточки пациен�
     ui.error_save.setText("")  # Пустое поле для предупреждения
     ui.error_save_file.setText("")  # Пустое поле для предупреждения
     ui.error_house_numb.setText("")  # Пустое поле для предупреждения
-    ui.error_name_patient.setText("")  # Пустое поле для предупреждения
 
     ui.comboBox_streets.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])  # Комбобокс с типами улиц
     ui.comboBox_locality_type.addItems(["місто", "СМТ", "село", "селище", "хутір"])  # Комбобокс с типами населенных пунктов
@@ -63,19 +63,18 @@ def otherWindow():  # Создание новой карточки пациен�
     ui.comboBox_district_name.addItems(districts_list)  # Комбобокс с назв. районов
     ui.comboBox_locality_name.addItems(localities_list)  # Комбобокс с назв. населенных пунктов
 
-    """Автонумирование для новой карточки пациента"""
+    """Автонумирование для новой карточки"""
     try:
-        cursor.execute("select max(patients_id) from patients")
+        cursor.execute("select max(cards_id) from cards")
         result = cursor.fetchall()
-        new_pat_id = result[0][0] + 1
+        new_card_id = result[0][0] + 1
     except:
-        new_pat_id = 1
+        new_card_id = 1
 
     global receive_data
 
     def receive_data():  # Присвоение переменных
         fields = {
-            "name": ui.pat_name.text(),
             "info": ui.general_chatacteristics.toPlainText(),
             "street": ui.comboBox_streets_name.currentText(),
             "affil": ui.affiliation.text(),
@@ -95,9 +94,9 @@ def otherWindow():  # Создание новой карточки пациен�
 
     def savePat():  # Внесение всей информации из ячеек в базу данных
         fields = receive_data()
-        cursor.execute(f"""INSERT INTO patients(full_name, info, street, affiliation, mobile_1, mobile_2, w_phone, h_phone, 
+        cursor.execute(f"""INSERT INTO cards(info, street, affiliation, mobile_1, mobile_2, w_phone, h_phone, 
                                                 house_numb, street_type, manager, region, district, locality_type, locality)
-                        VALUES("{fields['name']}", "{fields['info']}", "{fields['street']}", "{fields['affil']}", "{fields['mobile']}",
+                        VALUES( "{fields['info']}", "{fields['street']}", "{fields['affil']}", "{fields['mobile']}",
                                 "{fields['mobile_2']}", "{fields['work_ph']}", "{fields['home_ph']}", "{fields['house_numb']}",
                                 "{fields['street_t']}", "{fields['manag']}", "{fields['region_name']}", "{fields['district_name']}",
                                 "{fields['locality_t']}", "{fields['locality_name']}")""")
@@ -127,23 +126,24 @@ def otherWindow():  # Создание новой карточки пациен�
         """Внесения в БД все записи из столбца с диагнозами"""
         if ui.tableWidget_diag.rowCount() > 0:
             for row in range(ui.tableWidget_diag.rowCount()):
-                cursor.execute(f"""INSERT INTO diagnoses(date, apartment, patients_id, diagnosis)
+                cursor.execute(f"""INSERT INTO diagnoses(date, apartment, patient_name, diagnosis, cards_id)
                                             VALUES("{ui.tableWidget_diag.item(row, 0).text()}",
-                                            "{ui.tableWidget_diag.item(row, 1).text()}", "{new_pat_id}",
-                                            "{ui.tableWidget_diag.item(row, 3).text()}")""")
+                                                    "{ui.tableWidget_diag.item(row, 1).text()}", 
+                                                    "{ui.tableWidget_diag.item(row, 2).text()}",
+                                                    "{ui.tableWidget_diag.item(row, 3).text()}", "{new_card_id}")""")
                 db.commit()
         CardNew.close()
 
     def save_to_file_Pat():  # Сохранение всей информации пациента в формате json
         fields = receive_data()
-        with open(f"save_cards/{fields['name']}({fields['street_t']} {fields['street']}, {fields['house_numb']}).json", "w") as out_file:
+        with open(f"save_cards/{fields['street_t']} {fields['street']}, {fields['house_numb']}.json", "w") as out_file:
             table = {}
             if ui.tableWidget_diag.rowCount() > 0:
                 for row in range(ui.tableWidget_diag.rowCount()):
                     table[str(row)] = [
                         ui.tableWidget_diag.item(row, 0).text(),
                         int(ui.tableWidget_diag.item(row, 1).text()),
-                        fields['name'],
+                        ui.tableWidget_diag.item(row, 2).text(),
                         ui.tableWidget_diag.item(row, 3).text()
                     ]
             json.dump([fields, table], out_file, indent=4, sort_keys=True)
@@ -167,45 +167,36 @@ def otherWindow():  # Создание новой карточки пациен�
 
     def load_row_index(item: QtWidgets.QTableWidgetItem):  # Загрузка индекса выбраной строки и ее значения в окно ред. диагноза
         row = item.row()
-        name = receive_data()
         fields = [
             ui.tableWidget_diag.item(row, 0).text(),
             ui.tableWidget_diag.item(row, 1).text(),
-            name["name"],
+            ui.tableWidget_diag.item(row, 2).text(),
             ui.tableWidget_diag.item(row, 3).text(),
         ]
         view_diagnosis(row, 2, fields)
 
     global edit_row
     def edit_row(row, items):  # Смена значений указаной строки в таблице диагнозов на отредактированные
-        name = receive_data()
         ui.tableWidget_diag.setItem(row, 0, QtWidgets.QTableWidgetItem(items[0]))
         ui.tableWidget_diag.setItem(row, 1, QtWidgets.QTableWidgetItem(items[1]))
-        ui.tableWidget_diag.setItem(row, 2, QtWidgets.QTableWidgetItem(name["name"]))
-        ui.tableWidget_diag.setItem(row, 3, QtWidgets.QTableWidgetItem(items[2]))
+        ui.tableWidget_diag.setItem(row, 2, QtWidgets.QTableWidgetItem(items[2]))
+        ui.tableWidget_diag.setItem(row, 3, QtWidgets.QTableWidgetItem(items[3]))
 
     def field_validation():  # Проверка обязательных полей на наличие текста в них
-        if ui.comboBox_house_number.currentText().strip() == "" or ui.pat_name.text().strip() == "":
-            if ui.comboBox_house_number.currentText().strip() == "":
-                ui.error_house_numb.setText("Введіть номер дому!")
-            else:
-                ui.error_name_patient.setText("Введіть ім'я пацієнта!")
-            ui.error_save.setText("Заповніть потрібні поля!")
+        if ui.comboBox_house_number.currentText().strip() == "":
+            ui.error_house_numb.setText("Введіть номер дому!")
+            ui.error_save_file.setText("Заповніть потрібні поля!")
         else:
             savePat()  # Сохранение всех данных в БД
 
     def field_validation_file():  # Проверка обязательных полей на наличие текста в них
-        if ui.comboBox_house_number.currentText().strip() == "" or ui.pat_name.text().strip() == "":
-            if ui.comboBox_house_number.currentText().strip() == "":
-                ui.error_house_numb.setText("Введіть номер дому!")
-            else:
-                ui.error_name_patient.setText("Введіть ім'я пацієнта!")
+        if ui.comboBox_house_number.currentText().strip() == "":
+            ui.error_house_numb.setText("Введіть номер дому!")
             ui.error_save_file.setText("Заповніть потрібні поля!")
         else:
             save_to_file_Pat()  # Сохранение всех данных в файл
             ui.error_save_file.setText("")  # Пустое поле для предупреждения
             ui.error_house_numb.setText("")  # Пустое поле для предупреждения
-            ui.error_name_patient.setText("")  # Пустое поле для предупреждения
 
     ui.tableWidget_diag.doubleClicked.connect(load_row_index)  # Открытие окна ред. диагноза на двойное нажатие на ячейку таблицы
     ui.del_from_diag_Button.clicked.connect(del_row)  # Кнопка удаления строки
@@ -222,36 +213,21 @@ def add_new_diagnosis(window, name='', id=None):  # Окно для добавл
     ui.setupUi(Dialog_add_diag)
     Dialog_add_diag.show()
 
-    """Разный метод присвоения имени в зависимости от окна в котором мы находимся"""
-    if window == 1:
-        fields = receive_data()
-        ui.patient_add_diag.setText(fields["name"])
-    elif window == 2:
-        ui.patient_add_diag.setText(name)
-    else:
-        fields = receive_data_file()
-        ui.patient_add_diag.setText(fields["name"])
-
-    ui.patient_add_diag.setReadOnly(True)
-
     def add_diagnosis_to_table():  # Передача всех данных из ячеек в зависимости от окна в котором мы находимся
         if window == 1:
-            ui.patient_add_diag.setText(fields["name"])
             add_new_row(ui.dateEdit_add_diag.dateTime().toString("dd.MM.yyyy"), ui.apart_add_diag.text(),
-                        fields["name"], ui.diagnosis_add_diag.toPlainText())
+                        ui.patient_add_diag.text(), ui.diagnosis_add_diag.toPlainText())
         elif window == 2:
-            ui.patient_add_diag.setText(name)
-            cursor.execute(f"""INSERT INTO diagnoses(date, apartment, patients_id, diagnosis)
+            cursor.execute(f"""INSERT INTO diagnoses(date, apartment, patient_name, diagnosis, cards_id)
                                             VALUES("{ui.dateEdit_add_diag.dateTime().toString("dd.MM.yyyy")}",
-                                                    "{ui.apart_add_diag.text()}", "{id}",
-                                                    "{ui.diagnosis_add_diag.toPlainText()}")""")
+                                                    "{ui.apart_add_diag.text()}", "{ui.patient_add_diag.text()}",
+                                                    "{ui.diagnosis_add_diag.toPlainText()}", "{id}")""")
             db.commit()
             diagnosesTable()  # Обновление таблицы после создания нового диагноза
 
         else:
-            ui.patient_add_diag.setText(fields["name"])
             add_new_row_file(ui.dateEdit_add_diag.dateTime().toString("dd.MM.yyyy"), ui.apart_add_diag.text(),
-                             fields["name"], ui.diagnosis_add_diag.toPlainText())
+                             ui.patient_add_diag.text(), ui.diagnosis_add_diag.toPlainText())
         Dialog_add_diag.close()
 
     ui.add_to_table_Button.clicked.connect(add_diagnosis_to_table)
@@ -264,13 +240,11 @@ def view_diagnosis(diag_id, window=1, fields=None):  # Просмотр и ре�
     ui.setupUi(Dialog_view_diag)
     Dialog_view_diag.show()
 
-    ui.patient_view_diag.setReadOnly(True)
-
     """Заполнение ячеек данными в зависимости от текущего окна"""
     if window == 1:
         """Получение всей инф. об диагнозе из таблицы БД"""
         cursor.execute(
-            f"SELECT date, apartment, full_name, diagnosis FROM patients join diagnoses using(patients_id) WHERE diagnosis_id = {diag_id}")
+            f"SELECT date, apartment, patient_name, diagnosis FROM diagnoses WHERE diagnosis_id = {diag_id}")
         result = cursor.fetchall()
 
         """Заполнение ячеек данными полученых из БД"""
@@ -294,19 +268,21 @@ def view_diagnosis(diag_id, window=1, fields=None):  # Просмотр и ре�
             ui.saveButton_view.setEnabled(True)
         ui.apart_view_diag.setReadOnly(status)
         ui.diagnosis_view_diag.setReadOnly(status)
+        ui.patient_view_diag.setReadOnly(status)
 
     def save_changes():  # Функция сохранения отредактированой информации в таблицу диагнозов, способ сохранения зависит от текущего окна
         if window == 1:
             cursor.execute(
                 f"""UPDATE diagnoses SET date='{ui.dateEdit_view_diag.dateTime().toString("dd.MM.yyyy")}',
-                        apartment='{ui.apart_view_diag.text()}', diagnosis='{ui.diagnosis_view_diag.toPlainText()}' 
-                        WHERE diagnosis_id={diag_id} """)
+                         apartment='{ui.apart_view_diag.text()}', patient_name='{ui.patient_view_diag.text()}',
+                        diagnosis='{ui.diagnosis_view_diag.toPlainText()}' WHERE diagnosis_id={diag_id} """)
             db.commit()
             diagnosesTable()
         else:
             items = [
                 ui.dateEdit_view_diag.dateTime().toString("dd.MM.yyyy"),
                 ui.apart_view_diag.text(),
+                ui.patient_view_diag.text(),
                 ui.diagnosis_view_diag.toPlainText()
             ]
             if window == 2:
@@ -331,11 +307,10 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
 
     ui.error_save.setText("")  # Пустое поле для предупреждения
     ui.error_house_numb.setText("")  # Пустое поле для предупреждения
-    ui.error_name_patient.setText("") # Пустое поле для предупреждения
     ui.error_save_file.setText("")  # Пустое поле для предупреждения
 
     """Получение всей инф. об определенном пациенте из таблицы БД"""
-    cursor.execute(f"SELECT * FROM patients WHERE patients_id = {id}")
+    cursor.execute(f"SELECT * FROM cards WHERE cards_id = {id}")
     result = cursor.fetchall()
 
     def load_index(index: QtCore.QModelIndex):  # Функция для передачи id диагноза в окно просмотра диагноза
@@ -372,23 +347,23 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
         if not status:
             ui.comboBox_streets_2.clear()
             ui.comboBox_locality_type_2.clear()
-            cursor.execute(f"SELECT * FROM patients WHERE patients_id = {id}")
+            cursor.execute(f"SELECT * FROM cards WHERE cards_id = {id}")
             new_result = cursor.fetchall()
 
             ui.comboBox_streets_2.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])  # Комбобокс с типами улиц
             ui.comboBox_locality_type_2.addItems(["місто", "СМТ", "село", "селище", "хутір"])  # Комбобокс с типами населенных пунктов
-            ui.comboBox_streets_2.setCurrentText(str(new_result[0][10]))
-            ui.comboBox_locality_type_2.setCurrentText(str(new_result[0][14]))
+            ui.comboBox_streets_2.setCurrentText(str(new_result[0][9]))
+            ui.comboBox_locality_type_2.setCurrentText(str(new_result[0][13]))
 
             street_list = list_sql_request("street_name", "streets")  # Список всех улиц
             regions_list = list_sql_request("region_name", "regions")  # Список всех областей
             districts_list = list_sql_request("district_name", "districts")  # Список всех районов
             localities_list = list_sql_request("locality_name", "localities")  # Список всех населенных пунктов
 
-            check_availability_bd(street_list, new_result[0][3])  # Проверка на наличие улицы в БД
-            check_availability_bd(regions_list, new_result[0][12])  # Проверка на наличие области в БД
-            check_availability_bd(districts_list, new_result[0][13])  # Проверка на наличие района в БД
-            check_availability_bd(localities_list, new_result[0][15])  # Проверка на наличие населенного пункта в БД
+            check_availability_bd(street_list, new_result[0][2])  # Проверка на наличие улицы в БД
+            check_availability_bd(regions_list, new_result[0][11])  # Проверка на наличие области в БД
+            check_availability_bd(districts_list, new_result[0][12])  # Проверка на наличие района в БД
+            check_availability_bd(localities_list, new_result[0][14])  # Проверка на наличие населенного пункта в БД
 
             ui.comboBox_streets_name_2.clear()
             ui.comboBox_region_name_2.clear()
@@ -400,10 +375,10 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
             ui.comboBox_district_name_2.addItems(districts_list)  # Комбобокс с назв. районов
             ui.comboBox_locality_name_2.addItems(localities_list)  # Комбобокс с назв. населенных пунктов
 
-            ui.comboBox_streets_name_2.setCurrentText(str(new_result[0][3]))
-            ui.comboBox_region_name_2.setCurrentText(str(new_result[0][12]))
-            ui.comboBox_district_name_2.setCurrentText(str(new_result[0][13]))
-            ui.comboBox_locality_name_2.setCurrentText(str(new_result[0][15]))
+            ui.comboBox_streets_name_2.setCurrentText(str(new_result[0][2]))
+            ui.comboBox_region_name_2.setCurrentText(str(new_result[0][11]))
+            ui.comboBox_district_name_2.setCurrentText(str(new_result[0][12]))
+            ui.comboBox_locality_name_2.setCurrentText(str(new_result[0][14]))
 
             ui.comboBox_streets_name_2.setEditable(True)
             ui.comboBox_region_name_2.setEditable(True)
@@ -426,16 +401,16 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
             ui.comboBox_locality_name_2.clear()
             ui.comboBox_house_number_2.clear()
 
-            cursor.execute(f"SELECT * FROM patients WHERE patients_id = {id}")
+            cursor.execute(f"SELECT * FROM cards WHERE cards_id = {id}")
             new_result = cursor.fetchall()
 
-            ui.comboBox_streets_2.addItems([str(new_result[0][10])])
-            ui.comboBox_streets_name_2.addItems([str(new_result[0][3])])
-            ui.comboBox_region_name_2.addItems([str(new_result[0][12])])
-            ui.comboBox_district_name_2.addItems([str(new_result[0][13])])
-            ui.comboBox_locality_type_2.addItems([str(new_result[0][14])])
-            ui.comboBox_locality_name_2.addItems([str(new_result[0][15])])
-            ui.comboBox_house_number_2.addItems([str(new_result[0][9])])
+            ui.comboBox_streets_2.addItems([str(new_result[0][9])])
+            ui.comboBox_streets_name_2.addItems([str(new_result[0][2])])
+            ui.comboBox_region_name_2.addItems([str(new_result[0][11])])
+            ui.comboBox_district_name_2.addItems([str(new_result[0][12])])
+            ui.comboBox_locality_type_2.addItems([str(new_result[0][13])])
+            ui.comboBox_locality_name_2.addItems([str(new_result[0][14])])
+            ui.comboBox_house_number_2.addItems([str(new_result[0][8])])
             ui.comboBox_streets_name_2.setEditable(False)
             ui.comboBox_region_name_2.setEditable(False)
             ui.comboBox_district_name_2.setEditable(False)
@@ -452,12 +427,10 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
         ui.work_phone_2.setReadOnly(status)
         ui.home_phone_2.setReadOnly(status)
         ui.general_chatacteristics_2.setReadOnly(status)
-        ui.pat_name_2.setReadOnly(status)
         ui.manager_2.setReadOnly(status)
 
     def receive_data():  # Присвоение переменных
         fields = {
-            "name": ui.pat_name_2.text(),
             "info": ui.general_chatacteristics_2.toPlainText(),
             "street": ui.comboBox_streets_name_2.currentText(),
             "affil": ui.affiliation_2.text(),
@@ -478,10 +451,10 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
     def editPat():  # Занесение в БД отредактированные данные
         fields = receive_data()
         cursor.execute(
-            f"""UPDATE patients SET full_name='{fields["name"]}', info='{fields["info"]}', street='{fields["street"]}', affiliation='{fields["affil"]}', 
+            f"""UPDATE cards SET info='{fields["info"]}', street='{fields["street"]}', affiliation='{fields["affil"]}', 
                         mobile_1='{fields["mobile"]}', mobile_2='{fields["mobile_2"]}', w_phone='{fields["work_ph"]}', h_phone='{fields["home_ph"]}',
                         house_numb='{fields["house_numb"]}', street_type='{fields["street_t"]}', manager='{fields["manag"]}', region='{fields['region_name']}', 
-                        district='{fields['district_name']}', locality_type='{fields['locality_t']}', locality='{fields['locality_name']}' WHERE patients_id={id}""")
+                        district='{fields['district_name']}', locality_type='{fields['locality_t']}', locality='{fields['locality_name']}' WHERE cards_id={id}""")
         db.commit()
 
         def check_availability(field, lst, table, column):  # Если улицы, района, области и населенного пункта нет в базе данных, то она туда добавляется
@@ -526,22 +499,19 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
 
     """Заполнение ячеек данными полученых из БД"""
     ui.card_number_2.setText(f"№ {result[0][0]}")
-    ui.affiliation_2.setText(str(result[0][4]))
-    ui.mobile_1_2.setText(str(result[0][5]))
-    ui.mobile_2_2.setText(str(result[0][6]))
-    ui.work_phone_2.setText(str(result[0][7]))
-    ui.home_phone_2.setText(str(result[0][8]))
-    ui.general_chatacteristics_2.setText(str(result[0][2]))
-    ui.pat_name_2.setText(str(result[0][1]))
-    ui.manager_2.setText(str(result[0][11]))
+    ui.affiliation_2.setText(str(result[0][3]))
+    ui.mobile_1_2.setText(str(result[0][4]))
+    ui.mobile_2_2.setText(str(result[0][5]))
+    ui.work_phone_2.setText(str(result[0][6]))
+    ui.home_phone_2.setText(str(result[0][7]))
+    ui.general_chatacteristics_2.setText(str(result[0][1]))
+    ui.manager_2.setText(str(result[0][10]))
 
-    def sql_diagnosis():  # Запрос на получение всех данных о пациенте по диагнозам
-        """Получение обновленных данных о пациенте, для корректного заполнения таблицы диагнозов"""
-        cursor.execute(f"SELECT * FROM patients WHERE patients_id = {id}")
-        result = cursor.fetchall()
+    def sql_diagnosis():  # Запрос на получение всех данных о диагнозах пациентов
 
-        cursor.execute(f"""SELECT date, apartment, full_name, diagnosis, diagnosis_id
-                                                FROM patients join diagnoses using(patients_id) where house_numb = {result[0][9]} and street = '{result[0][3]}' """)
+        cursor.execute(f"""SELECT date, apartment, patient_name, diagnosis, diagnosis_id
+                                                FROM diagnoses where cards_id = '{id}' 
+                                                AND patient_name LIKE '%{ui.pat_name_2.text()}%'""")
         return cursor.fetchall()
 
     global diagnosesTable
@@ -558,6 +528,8 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
 
     diagnosesTable()  # Вызов функции для заполнения таблицы
 
+    ui.pat_name_2.textChanged.connect(diagnosesTable)  # Заполнение таблици при вводе имени пациента в ячейку для поиска пациента
+
     def save_to_file_Pat_edit():  # Сохранение всей информации пациента в формате json
         fields = receive_data()
         with open(f"save_cards/{fields['name']}({fields['street_t']} {fields['street']}, {fields['house_numb']}).json", "w") as out_file:
@@ -567,7 +539,7 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
                     table[str(row)] = [
                         ui.tableWidget_diag_edit.item(row, 0).text(),
                         ui.tableWidget_diag_edit.item(row, 1).text(),
-                        fields['name'],
+                        ui.tableWidget_diag_edit.item(row, 2).text(),
                         ui.tableWidget_diag_edit.item(row, 3).text()
                     ]
             json.dump([fields, table], out_file, indent=4, sort_keys=True)
@@ -593,19 +565,15 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
                 ui.addButton_2.setEnabled(False)
 
     def field_validation():  # Проверка обязательных полей на наличие текста в них
-        if ui.comboBox_house_number_2.currentText().strip() == "" or ui.pat_name_2.text().strip() == "":
-            if ui.comboBox_house_number_2.currentText().strip() == "":
-                ui.error_house_numb.setText("Введіть номер дому!")
-            else:
-                ui.error_name_patient.setText("Введіть ім'я пацієнта!")
+        if ui.comboBox_house_number_2.currentText().strip() == "":
+            ui.error_house_numb.setText("Введіть номер дому!")
             ui.error_save.setText("Заповніть потрібні поля!")
         else:
             editPat()  # Сохранение всех данных в БД
             ui.error_save.setText("")  # Пустое поле для предупреждения
             ui.error_house_numb.setText("")  # Пустое поле для предупреждения
-            ui.error_name_patient.setText("")  # Пустое поле для предупреждения
 
-    ui.photoButton.clicked.connect(lambda sh, pat_id=id: photoWindow(pat_id))
+    ui.photoButton.clicked.connect(lambda sh, card_id=id: photoWindow(card_id))
     ui.addButton_2.clicked.connect(load_info_from_file_edit)  # Кнопка добавления информации в карточку из файла
     ui.save_to_fileButton_2.clicked.connect(save_to_file_Pat_edit)  # Кнопка сохранения информации в виде файла
     ui.add_to_diag_Button_2.clicked.connect(
@@ -615,13 +583,13 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
     ui.saveButton_2.clicked.connect(field_validation)  # Кнопка сохранения
 
 def photoWindow(id):
-    direct = f"photo_storage/patient(№{id})"  # Место хранения фотографий
+    direct = f"photo_storage/patients(№{id})"  # Место хранения фотографий
 
     """Проверки на наличия папки пациента, если папки нет то создание ёё"""
     if not os.path.isdir(direct):
         os.mkdir(direct)
 
-    fname = QFileDialog().getOpenFileName(CardEdit, "Open", f"photo_storage/patient(№{id})", "Фотографии (*.png *.jpg *.bmp)")
+    fname = QFileDialog().getOpenFileName(CardEdit, "Фото", f"photo_storage/patients(№{id})", "Фотографии (*.png *.jpg *.bmp)")
 
     if fname[0]:
         global photo
@@ -647,7 +615,6 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
     ui.error.setText("")  # Пустое поле для предупреждения
     ui.error_save.setText("")  # Пустое поле для предупреждения
     ui.error_house_numb.setText("")  # Пустое поле для предупреждения
-    ui.error_name_patient.setText("") # Пустое поле для предупреждения
     ui.comboBox_streets_3.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])  # Комбобокс с типами улиц
     ui.comboBox_locality_type_3.addItems(["місто", "СМТ", "село", "селище", "хутір"])  # Комбобокс с типами населенных пунктов
 
@@ -705,7 +672,6 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
     ui.work_phone_3.setText(file_data[0]["work_ph"])
     ui.home_phone_3.setText(file_data[0]["home_ph"])
     ui.general_chatacteristics_3.setText(file_data[0]["info"])
-    ui.pat_name_3.setText(file_data[0]["name"])
     ui.manager_3.setText(file_data[0]["manag"])
 
 
@@ -717,7 +683,7 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
 
     """Автонумирование для новой карточки пациента"""
     try:
-        cursor.execute("select max(patients_id) from patients")
+        cursor.execute("select max(cards_id) from cards")
         result = cursor.fetchall()
         new_pat_id = result[0][0] + 1
     except:
@@ -727,7 +693,6 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
 
     def receive_data_file():  # Присвоение переменных
         fields = {
-            "name": ui.pat_name_3.text(),
             "info": ui.general_chatacteristics_3.toPlainText(),
             "street": ui.comboBox_streets_name_3.currentText(),
             "affil": ui.affiliation_3.text(),
@@ -749,9 +714,9 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
 
     def savePat():  # Внесение всей информации из ячеек в базу данных
         fields = receive_data_file()
-        cursor.execute(f"""INSERT INTO patients(full_name, info, street, affiliation, mobile_1, mobile_2, w_phone, h_phone, 
-                                                house_numb, street_type, manager, region, district, locality_type, locality)
-                        VALUES("{fields['name']}", "{fields['info']}", "{fields['street']}", "{fields['affil']}", "{fields['mobile']}",
+        cursor.execute(f"""INSERT INTO cards(info, street, affiliation, mobile_1, mobile_2, w_phone, h_phone, house_numb, 
+                                                street_type, manager, region, district, locality_type, locality)
+                        VALUES( "{fields['info']}", "{fields['street']}", "{fields['affil']}", "{fields['mobile']}",
                                 "{fields['mobile_2']}", "{fields['work_ph']}", "{fields['home_ph']}", "{fields['house_numb']}",
                                 "{fields['street_t']}", "{fields['manag']}", "{fields['region_name']}", "{fields['district_name']}",
                                 "{fields['locality_t']}", "{fields['locality_name']}")""")
@@ -785,10 +750,11 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
         """Внесения в БД все записи из столбца с диагнозами"""
         if ui.tableWidget_diag_file.rowCount() > 0:
             for row in range(ui.tableWidget_diag_file.rowCount()):
-                cursor.execute(f"""INSERT INTO diagnoses(date, apartment, patients_id, diagnosis)
+                cursor.execute(f"""INSERT INTO diagnoses(date, apartment, patient_name, diagnosis, cards_id)
                                             VALUES("{ui.tableWidget_diag_file.item(row, 0).text()}",
-                                            "{ui.tableWidget_diag_file.item(row, 1).text()}", "{new_pat_id}",
-                                            "{ui.tableWidget_diag_file.item(row, 3).text()}")""")
+                                            "{ui.tableWidget_diag_file.item(row, 1).text()}", 
+                                            "{ui.tableWidget_diag_file.item(row, 2).text()}",
+                                            "{ui.tableWidget_diag_file.item(row, 3).text()}", "{new_pat_id}")""")
                 db.commit()
         CardFile.close()
 
@@ -806,28 +772,29 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
     def add_info_to_card():  # Добавления доп. данных из файла в выбранную карточку
         fields = receive_data_file()
 
-        cursor.execute("select * from patients ")
+        cursor.execute("select * from cards")
         result = cursor.fetchall()
 
         pat_id = ui.curd_numberBox.value()
 
         if pat_id <= len(result):
-            cursor.execute(f"select * from patients where patients_id = {pat_id}")
+            cursor.execute(f"select * from cards where cards_id = {pat_id}")
             result = cursor.fetchall()
 
-            new_info = f"{result[0][2]}\n{fields['info']}"
+            new_info = f"{result[0][1]}\n{fields['info']}"
 
             cursor.execute(
-                f"""UPDATE patients SET info='{new_info}' WHERE patients_id={pat_id}""")
+                f"""UPDATE cards SET info='{new_info}' WHERE cards_id={pat_id}""")
             db.commit()
 
             """Внесения в БД все записи из столбца с диагнозами"""
             if ui.tableWidget_diag_file.rowCount() > 0:
                 for row in range(ui.tableWidget_diag_file.rowCount()):
-                    cursor.execute(f"""INSERT INTO diagnoses(date, apartment, patients_id, diagnosis)
+                    cursor.execute(f"""INSERT INTO diagnoses(date, apartment, patient_name, diagnosis, cards_id)
                                                         VALUES("{ui.tableWidget_diag_file.item(row, 0).text()}",
-                                                        "{ui.tableWidget_diag_file.item(row, 1).text()}", "{pat_id}",
-                                                        "{ui.tableWidget_diag_file.item(row, 3).text()}")""")
+                                                        "{ui.tableWidget_diag_file.item(row, 1).text()}", 
+                                                        "{ui.tableWidget_diag_file.item(row, 2).text()}",
+                                                        "{ui.tableWidget_diag_file.item(row, 3).text()}", "{pat_id}")""")
                     db.commit()
             CardFile.close()
         else:
@@ -841,32 +808,29 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
 
     def load_row_index(item: QtWidgets.QTableWidgetItem):  # Загрузка индекса выбраной строки и ее значения в окно ред. диагноза
         row = item.row()
-        name = receive_data_file()
         fields = [
             ui.tableWidget_diag_file.item(row, 0).text(),
             ui.tableWidget_diag_file.item(row, 1).text(),
-            name["name"],
+            ui.tableWidget_diag_file.item(row, 2).text(),
             ui.tableWidget_diag_file.item(row, 3).text(),
         ]
         view_diagnosis(row, 3, fields)
 
     global edit_row_file
     def edit_row_file(row, items):  # Смена значений указаной строки в таблице диагнозов на отредактированные
-        name = receive_data_file()
         ui.tableWidget_diag_file.setItem(row, 0, QtWidgets.QTableWidgetItem(items[0]))
         ui.tableWidget_diag_file.setItem(row, 1, QtWidgets.QTableWidgetItem(items[1]))
-        ui.tableWidget_diag_file.setItem(row, 2, QtWidgets.QTableWidgetItem(name["name"]))
-        ui.tableWidget_diag_file.setItem(row, 3, QtWidgets.QTableWidgetItem(items[2]))
+        ui.tableWidget_diag_file.setItem(row, 2, QtWidgets.QTableWidgetItem(items[2]))
+        ui.tableWidget_diag_file.setItem(row, 3, QtWidgets.QTableWidgetItem(items[3]))
 
-    def field_validation():  # Проверка обязательных полей на налияие текста в них
-        if ui.comboBox_house_number_3.currentText().strip() == "" or ui.pat_name_3.text().strip() == "":
-            if ui.comboBox_house_number_3.currentText().strip() == "":
-                ui.error_house_numb.setText("Введіть номер дому!")
-            else:
-                ui.error_name_patient.setText("Введіть ім'я пацієнта!")
+    def field_validation():  # Проверка обязательных полей на наличие текста в них
+        if ui.comboBox_house_number_3.currentText().strip() == "":
+            ui.error_house_numb.setText("Введіть номер дому!")
             ui.error_save.setText("Заповніть потрібні поля!")
         else:
-            savePat()  # Сохранение всех данных в картотеку
+            savePat()  # Сохранение всех данных в БД
+            ui.error_save.setText("")  # Пустое поле для предупреждения
+            ui.error_house_numb.setText("")  # Пустое поле для предупреждения
 
     ui.tableWidget_diag_file.doubleClicked.connect(load_row_index) # Открытие окна ред. диагноза на двойное нажатие на ячейку таблицы
     ui.del_from_diag_Button_2.clicked.connect(del_row)  # Кнопка удаления строки
@@ -875,6 +839,61 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
     ui.saveButton_3.clicked.connect(field_validation)  # Кнопка сохранения карточки в картотеку
     ui.add_to_cardButton.clicked.connect(add_info_to_card)  # Кнопка добавления доп. информации в выбраную карточку
 
+def address_lists():
+    global Address_listsWindow
+    Address_listsWindow = QtWidgets.QMainWindow()
+    ui = Ui_Address_listsWindow()
+    ui.setupUi(Address_listsWindow)
+    Address_listsWindow.show()
+
+    ui.comboBox_change_table.addItems(["Області", "Райони", "Населенні пункти", "Вулиці"])  # Заполнение комбобокса
+
+    """Словарь для назначения нужных столбцов, таблиц из БД к тексту комбобокса"""
+    address_dict = {"Області": ["region_name", "regions", "region_id"],
+                    "Райони": ["district_name", "districts", "district_id"],
+                    "Населенні пункти": ["locality_name", "localities", "locality_id"],
+                    "Вулиці": ["street_name", "streets", "streets_id"]
+                    }
+
+    def sql_request(column, table, id):  # SQL запрос, который зависит от текущего текста в комбобоксе и есть ли текст в ячейке для поиска
+        cursor.execute(
+            f"select {column}, {id} from {table} where {column} like '%{ui.address_lookup.text()}%'")
+        result = cursor.fetchall()
+        return result
+    def addressTable():  # Таблица с aдрессами
+        cBox = ui.comboBox_change_table.currentText()  # Текущий текст в комбобоксе
+        result = sql_request(address_dict[cBox][0], address_dict[cBox][1], address_dict[cBox][2])  # SQL запрос
+
+        """Заполнение таблицы"""
+        ui.tableWidget.setColumnCount(2)
+        ui.tableWidget.setHorizontalHeaderLabels([f"{cBox}", "id"])
+        ui.tableWidget.setRowCount(len(result))
+        for row, item in enumerate(result):
+            ui.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(str(item[0])))
+            ui.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(str(item[1])))
+
+    addressTable()  # Первое заполнение таблицы
+    ui.tableWidget.hideColumn(1)  # Скрытие колонки с id адрессов
+    ui.tableWidget.setSortingEnabled(True)  # Сортировка столбца
+    ui.comboBox_change_table.currentTextChanged.connect(addressTable)  # Заполнение таблицы при смене текста в комбобокс
+    ui.address_lookup.textChanged.connect(addressTable)   # Заполнение таблицы при смене текста в ячейке для поиска адресса
+
+    ui.saveButton.setEnabled(False)
+
+    set_id = set()
+
+    def change_status():
+        ui.saveButton.setEnabled(True)
+        ui.comboBox_change_table.setEnabled(False)
+        ui.address_lookup.setEnabled(False)
+        id = ui.tableWidget.item(ui.tableWidget.currentRow(), 1).text()
+        set_id.add(id)
+
+    def save_changes():
+        print(set_id)
+
+    ui.tableWidget.cellChanged.connect(change_status)
+    ui.saveButton.clicked.connect(save_changes)
 
 def katalog():  # Главная окно со списком карточек
     app = QtWidgets.QApplication(sys.argv)
@@ -886,16 +905,17 @@ def katalog():  # Главная окно со списком карточек
     def updateTable(sql_search=False):  # таблица со списком карточек пациентов
         if not sql_search:
             """SQL запрос на инф. из 4 столбцов для добавления в виджет без фильтров"""
-            cursor.execute("SELECT patients_id, region, district, locality, street_type, street, house_numb FROM patients")
+            cursor.execute("SELECT cards_id, region, district, locality, street_type, street, house_numb FROM cards")
             result = cursor.fetchall()
         else:
             """SQL запрос с фильтрами"""
             cursor.execute(
-                f"""SELECT patients_id, region, district, locality, street_type, street, house_numb FROM patients 
-                                WHERE street LIKE '%{ui.search_street.text()}%' AND house_numb LIKE '{ui.search_house.text()}%' 
-                                AND full_name LIKE '{ui.search_patient.text()}%' AND manager LIKE '{ui.search_manager.text()}%'""")
-            print(ui.search_street.text())
+                f"""SELECT cards_id, region, district, locality, street_type, street, house_numb FROM cards join diagnoses using(cards_id)
+                                WHERE street LIKE '%{ui.search_street.text()}%' AND house_numb LIKE '%{ui.search_house.text()}%' 
+                                AND patient_name LIKE '%{ui.search_patient.text()}%' AND manager LIKE '%{ui.search_manager.text()}%'
+                                GROUP BY cards_id""")
             result = cursor.fetchall()
+            print(result)
 
         """Заполнение таблицы"""
         ui.tableWidget.setRowCount(len(result))
@@ -928,6 +948,7 @@ def katalog():  # Главная окно со списком карточек
                 data = json.load(out_file)
                 otherWindow_3(data)
 
+    ui.address_listsButton.clicked.connect(address_lists)
     ui.view_fileButton.clicked.connect(load_info_from_file)  # Кнопка для просмотра файла
     ui.sortButton.clicked.connect(sort_table)  # Кнопка сортировки столбцов
     ui.updateButton.clicked.connect(updateTable)  # Кнопка обновление таблицы
