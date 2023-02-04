@@ -5,7 +5,7 @@ import json
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QDate
-from PyQt5.QtWidgets import QFileDialog, QVBoxLayout, QLabel, QWidget
+from PyQt5.QtWidgets import QFileDialog, QVBoxLayout, QLabel, QWidget, QTableWidget
 from PyQt5.QtGui import QPixmap
 
 from pyqt_files.MainForm import Ui_MainWindow
@@ -16,6 +16,8 @@ from pyqt_files.diagnosis import Ui_Dialog_add_diag
 from pyqt_files.diagnosis_view import Ui_Dialog_view_diag
 from pyqt_files.photo import Ui_photo
 from pyqt_files.address_lists import Ui_Address_listsWindow
+from pyqt_files.error_window import Ui_errorWindow
+
 
 def otherWindow():  # Создание новой карточки пациента
     global CardNew
@@ -29,7 +31,8 @@ def otherWindow():  # Создание новой карточки пациен�
     ui.error_house_numb.setText("")  # Пустое поле для предупреждения
 
     ui.comboBox_streets.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])  # Комбобокс с типами улиц
-    ui.comboBox_locality_type.addItems(["місто", "СМТ", "село", "селище", "хутір"])  # Комбобокс с типами населенных пунктов
+    ui.comboBox_locality_type.addItems(
+        ["місто", "СМТ", "село", "селище", "хутір"])  # Комбобокс с типами населенных пунктов
 
     def sql_house_numbers():  # Запрос в БД на список домов прикрепленных к одной улице
         cursor.execute(
@@ -46,9 +49,11 @@ def otherWindow():  # Создание новой карточки пациен�
         ui.comboBox_house_number.addItems(numbers_list)
         ui.comboBox_house_number.setCurrentText(h_numb)
 
-    ui.comboBox_streets_name.currentTextChanged.connect(set_house_number)  # Установка списка номеров домов из БД, при смене улицы
+    ui.comboBox_streets_name.currentTextChanged.connect(
+        set_house_number)  # Установка списка номеров домов из БД, при смене улицы
 
-    def list_sql_request(column, table):  # SQL запрос на название всех улиц, районов, областей и населенных пунктов сортировка и назначение этого списка на комбобокс
+    def list_sql_request(column,
+                         table):  # SQL запрос на название всех улиц, районов, областей и населенных пунктов сортировка и назначение этого списка на комбобокс
         cursor.execute(f"select {column} from {table}")
         result = cursor.fetchall()
         return sorted([i[0] for i in result])
@@ -102,7 +107,8 @@ def otherWindow():  # Создание новой карточки пациен�
                                 "{fields['locality_t']}", "{fields['locality_name']}")""")
         db.commit()
 
-        def check_availability(field, lst, table, column):  # Если улицы, района, области и населенного пункта нет в базе данных, то она туда добавляется
+        def check_availability(field, lst, table,
+                               column):  # Если улицы, района, области и населенного пункта нет в базе данных, то она туда добавляется
             if field not in lst and field != '':
                 cursor.execute(f"""INSERT INTO {table}({column}) VALUES("{field}")""")
                 db.commit()
@@ -119,8 +125,10 @@ def otherWindow():  # Создание новой карточки пациен�
 
         numbers_list = sql_house_numbers()  # Запрос в БД на список домов прикрепленных к одной улице
 
-        if fields['house_numb'] not in numbers_list and fields['house_numb'] != '':  # Если номера дома нет в базе данных, то он туда добавляется
-            cursor.execute(f"""INSERT INTO house_numbers(house_number, streets_id) VALUES("{fields['house_numb']}", "{streets_id}")""")
+        if fields['house_numb'] not in numbers_list and fields[
+            'house_numb'] != '':  # Если номера дома нет в базе данных, то он туда добавляется
+            cursor.execute(
+                f"""INSERT INTO house_numbers(house_number, streets_id) VALUES("{fields['house_numb']}", "{streets_id}")""")
             db.commit()
 
         """Внесения в БД все записи из столбца с диагнозами"""
@@ -165,7 +173,8 @@ def otherWindow():  # Создание новой карточки пациен�
             ui.tableWidget_diag.removeRow(row)
             ui.tableWidget_diag.selectionModel().clearCurrentIndex()  # этот вызов нужен для того, чтобы сбросить индекс выбранной строки
 
-    def load_row_index(item: QtWidgets.QTableWidgetItem):  # Загрузка индекса выбраной строки и ее значения в окно ред. диагноза
+    def load_row_index(
+            item: QtWidgets.QTableWidgetItem):  # Загрузка индекса выбраной строки и ее значения в окно ред. диагноза
         row = item.row()
         fields = [
             ui.tableWidget_diag.item(row, 0).text(),
@@ -176,6 +185,7 @@ def otherWindow():  # Создание новой карточки пациен�
         view_diagnosis(row, 2, fields)
 
     global edit_row
+
     def edit_row(row, items):  # Смена значений указаной строки в таблице диагнозов на отредактированные
         ui.tableWidget_diag.setItem(row, 0, QtWidgets.QTableWidgetItem(items[0]))
         ui.tableWidget_diag.setItem(row, 1, QtWidgets.QTableWidgetItem(items[1]))
@@ -198,7 +208,8 @@ def otherWindow():  # Создание новой карточки пациен�
             ui.error_save_file.setText("")  # Пустое поле для предупреждения
             ui.error_house_numb.setText("")  # Пустое поле для предупреждения
 
-    ui.tableWidget_diag.doubleClicked.connect(load_row_index)  # Открытие окна ред. диагноза на двойное нажатие на ячейку таблицы
+    ui.tableWidget_diag.doubleClicked.connect(
+        load_row_index)  # Открытие окна ред. диагноза на двойное нажатие на ячейку таблицы
     ui.del_from_diag_Button.clicked.connect(del_row)  # Кнопка удаления строки
     ui.add_to_diag_Button.clicked.connect(
         lambda sh, window=1: add_new_diagnosis(window))  # Кнопка открытия окна с полями для заполнения диагноза
@@ -334,7 +345,8 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
         ui.comboBox_house_number_2.addItems(numbers_list)
         ui.comboBox_house_number_2.setCurrentText(h_numb)
 
-    def list_sql_request(column, table):  # SQL запрос на название всех улиц, районов, областей и населенных пунктов сортировка и назначение этого списка на комбобокс
+    def list_sql_request(column,
+                         table):  # SQL запрос на название всех улиц, районов, областей и населенных пунктов сортировка и назначение этого списка на комбобокс
         cursor.execute(f"select {column} from {table}")
         result = cursor.fetchall()
         return sorted([i[0] for i in result])
@@ -350,8 +362,10 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
             cursor.execute(f"SELECT * FROM cards WHERE cards_id = {id}")
             new_result = cursor.fetchall()
 
-            ui.comboBox_streets_2.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])  # Комбобокс с типами улиц
-            ui.comboBox_locality_type_2.addItems(["місто", "СМТ", "село", "селище", "хутір"])  # Комбобокс с типами населенных пунктов
+            ui.comboBox_streets_2.addItems(
+                ["вулиця", "провулок", "бульвар", "шоссе", "проспект"])  # Комбобокс с типами улиц
+            ui.comboBox_locality_type_2.addItems(
+                ["місто", "СМТ", "село", "селище", "хутір"])  # Комбобокс с типами населенных пунктов
             ui.comboBox_streets_2.setCurrentText(str(new_result[0][9]))
             ui.comboBox_locality_type_2.setCurrentText(str(new_result[0][13]))
 
@@ -391,7 +405,8 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
             ui.save_to_fileButton_2.setEnabled(False)
             ui.editButton.setEnabled(False)
 
-            ui.comboBox_streets_name_2.currentTextChanged.connect(set_house_number)  # Установка списка номеров домов из БД, при смене улицы
+            ui.comboBox_streets_name_2.currentTextChanged.connect(
+                set_house_number)  # Установка списка номеров домов из БД, при смене улицы
         else:
             ui.comboBox_streets_2.clear()
             ui.comboBox_streets_name_2.clear()
@@ -457,7 +472,8 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
                         district='{fields['district_name']}', locality_type='{fields['locality_t']}', locality='{fields['locality_name']}' WHERE cards_id={id}""")
         db.commit()
 
-        def check_availability(field, lst, table, column):  # Если улицы, района, области и населенного пункта нет в базе данных, то она туда добавляется
+        def check_availability(field, lst, table,
+                               column):  # Если улицы, района, области и населенного пункта нет в базе данных, то она туда добавляется
             if field not in lst and field != '':
                 cursor.execute(f"""INSERT INTO {table}({column}) VALUES("{field}")""")
                 db.commit()
@@ -479,10 +495,11 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
 
         numbers_list = sql_house_numbers()  # Запрос в БД на список домов прикрепленных к одной улице
 
-        if fields['house_numb'] not in numbers_list and fields['house_numb'] != '':  # Если номера дома нет в базе данных, то он туда добавляется
-            cursor.execute(f"""INSERT INTO house_numbers(house_number, streets_id) VALUES("{fields['house_numb']}", "{streets_id}")""")
+        if fields['house_numb'] not in numbers_list and fields[
+            'house_numb'] != '':  # Если номера дома нет в базе данных, то он туда добавляется
+            cursor.execute(
+                f"""INSERT INTO house_numbers(house_number, streets_id) VALUES("{fields['house_numb']}", "{streets_id}")""")
             db.commit()
-
 
         """Обратный переход в режим просмотра"""
         ui.saveButton_2.setEnabled(False)
@@ -528,11 +545,12 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
 
     diagnosesTable()  # Вызов функции для заполнения таблицы
 
-    ui.pat_name_2.textChanged.connect(diagnosesTable)  # Заполнение таблици при вводе имени пациента в ячейку для поиска пациента
+    ui.pat_name_2.textChanged.connect(
+        diagnosesTable)  # Заполнение таблици при вводе имени пациента в ячейку для поиска пациента
 
     def save_to_file_Pat_edit():  # Сохранение всей информации пациента в формате json
         fields = receive_data()
-        with open(f"save_cards/{fields['name']}({fields['street_t']} {fields['street']}, {fields['house_numb']}).json", "w") as out_file:
+        with open(f"save_cards/{fields['street_t']} {fields['street']}, {fields['house_numb']}.json", "w") as out_file:
             table = {}
             if ui.tableWidget_diag_edit.rowCount() > 0:
                 for row in range(ui.tableWidget_diag_edit.rowCount()):
@@ -582,6 +600,7 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
     ui.editButton.clicked.connect(lambda sh, stat=False: switch(stat))  # Кнопка для редактирования ячеек
     ui.saveButton_2.clicked.connect(field_validation)  # Кнопка сохранения
 
+
 def photoWindow(id):
     direct = f"photo_storage/patients(№{id})"  # Место хранения фотографий
 
@@ -589,7 +608,8 @@ def photoWindow(id):
     if not os.path.isdir(direct):
         os.mkdir(direct)
 
-    fname = QFileDialog().getOpenFileName(CardEdit, "Фото", f"photo_storage/patients(№{id})", "Фотографии (*.png *.jpg *.bmp)")
+    fname = QFileDialog().getOpenFileName(CardEdit, "Фото", f"photo_storage/patients(№{id})",
+                                          "Фотографии (*.png *.jpg *.bmp)")
 
     if fname[0]:
         global photo
@@ -616,9 +636,11 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
     ui.error_save.setText("")  # Пустое поле для предупреждения
     ui.error_house_numb.setText("")  # Пустое поле для предупреждения
     ui.comboBox_streets_3.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])  # Комбобокс с типами улиц
-    ui.comboBox_locality_type_3.addItems(["місто", "СМТ", "село", "селище", "хутір"])  # Комбобокс с типами населенных пунктов
+    ui.comboBox_locality_type_3.addItems(
+        ["місто", "СМТ", "село", "селище", "хутір"])  # Комбобокс с типами населенных пунктов
 
-    def list_sql_request(column, table):  # SQL запрос на название всех улиц, районов, областей и населенных пунктов сортировка и назначение этого списка на комбобокс
+    def list_sql_request(column,
+                         table):  # SQL запрос на название всех улиц, районов, областей и населенных пунктов сортировка и назначение этого списка на комбобокс
         cursor.execute(f"select {column} from {table}")
         result = cursor.fetchall()
         return sorted([i[0] for i in result])
@@ -652,7 +674,8 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
         ui.comboBox_house_number_3.addItems(numbers_list)
         ui.comboBox_house_number_3.setCurrentText(h_numb)
 
-    ui.comboBox_streets_name_3.currentTextChanged.connect(set_house_number)  # Установка списка номеров домов из БД, при смене улицы
+    ui.comboBox_streets_name_3.currentTextChanged.connect(
+        set_house_number)  # Установка списка номеров домов из БД, при смене улицы
 
     """Заполнение ячеек данными полученых из файла"""
     ui.comboBox_locality_name_3.addItems(localities_list)
@@ -673,7 +696,6 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
     ui.home_phone_3.setText(file_data[0]["home_ph"])
     ui.general_chatacteristics_3.setText(file_data[0]["info"])
     ui.manager_3.setText(file_data[0]["manag"])
-
 
     if file_data[1]:  # Проверка есть ли диагнозы, и заполнение таблицы
         ui.tableWidget_diag_file.setRowCount(len(file_data[1]))
@@ -710,8 +732,6 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
         }
         return fields
 
-
-
     def savePat():  # Внесение всей информации из ячеек в базу данных
         fields = receive_data_file()
         cursor.execute(f"""INSERT INTO cards(info, street, affiliation, mobile_1, mobile_2, w_phone, h_phone, house_numb, 
@@ -722,7 +742,8 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
                                 "{fields['locality_t']}", "{fields['locality_name']}")""")
         db.commit()
 
-        def check_availability(field, lst, table, column):  # Если улицы, района, области и населенного пункта нет в базе данных, то она туда добавляется
+        def check_availability(field, lst, table,
+                               column):  # Если улицы, района, области и населенного пункта нет в базе данных, то она туда добавляется
             if field not in lst and field != '':
                 cursor.execute(f"""INSERT INTO {table}({column}) VALUES("{field}")""")
                 db.commit()
@@ -743,8 +764,10 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
 
         numbers_list = sql_house_numbers()  # Запрос в БД на список домов прикрепленных к одной улице
 
-        if fields['house_numb'] not in numbers_list and fields['house_numb'] != '':  # Если номера дома нет в базе данных, то он туда добавляется
-            cursor.execute(f"""INSERT INTO house_numbers(house_number, streets_id) VALUES("{fields['house_numb']}", "{streets_id}")""")
+        if fields['house_numb'] not in numbers_list and fields[
+            'house_numb'] != '':  # Если номера дома нет в базе данных, то он туда добавляется
+            cursor.execute(
+                f"""INSERT INTO house_numbers(house_number, streets_id) VALUES("{fields['house_numb']}", "{streets_id}")""")
             db.commit()
 
         """Внесения в БД все записи из столбца с диагнозами"""
@@ -806,7 +829,8 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
             ui.tableWidget_diag_file.removeRow(row)
             ui.tableWidget_diag_file.selectionModel().clearCurrentIndex()  # этот вызов нужен для того, чтобы сбросить индекс выбранной строки
 
-    def load_row_index(item: QtWidgets.QTableWidgetItem):  # Загрузка индекса выбраной строки и ее значения в окно ред. диагноза
+    def load_row_index(
+            item: QtWidgets.QTableWidgetItem):  # Загрузка индекса выбраной строки и ее значения в окно ред. диагноза
         row = item.row()
         fields = [
             ui.tableWidget_diag_file.item(row, 0).text(),
@@ -817,6 +841,7 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
         view_diagnosis(row, 3, fields)
 
     global edit_row_file
+
     def edit_row_file(row, items):  # Смена значений указаной строки в таблице диагнозов на отредактированные
         ui.tableWidget_diag_file.setItem(row, 0, QtWidgets.QTableWidgetItem(items[0]))
         ui.tableWidget_diag_file.setItem(row, 1, QtWidgets.QTableWidgetItem(items[1]))
@@ -832,12 +857,14 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
             ui.error_save.setText("")  # Пустое поле для предупреждения
             ui.error_house_numb.setText("")  # Пустое поле для предупреждения
 
-    ui.tableWidget_diag_file.doubleClicked.connect(load_row_index) # Открытие окна ред. диагноза на двойное нажатие на ячейку таблицы
+    ui.tableWidget_diag_file.doubleClicked.connect(
+        load_row_index)  # Открытие окна ред. диагноза на двойное нажатие на ячейку таблицы
     ui.del_from_diag_Button_2.clicked.connect(del_row)  # Кнопка удаления строки
     ui.add_to_diag_Button_3.clicked.connect(
         lambda sh, window=3: add_new_diagnosis(window))  # Кнопка добавления новой строки в табл. диагнозов
     ui.saveButton_3.clicked.connect(field_validation)  # Кнопка сохранения карточки в картотеку
     ui.add_to_cardButton.clicked.connect(add_info_to_card)  # Кнопка добавления доп. информации в выбраную карточку
+
 
 def address_lists():
     global Address_listsWindow
@@ -846,54 +873,277 @@ def address_lists():
     ui.setupUi(Address_listsWindow)
     Address_listsWindow.show()
 
-    ui.comboBox_change_table.addItems(["Області", "Райони", "Населенні пункти", "Вулиці"])  # Заполнение комбобокса
+    current_address = "Regions"  # Установка текущего адреса "Області", для первого запуска
+    last_address = None
+    ui.returnButton.setEnabled(False)
+    branch_display = []  # Список для хранения и отображения текущей ветки
 
-    """Словарь для назначения нужных столбцов, таблиц из БД к тексту комбобокса"""
-    address_dict = {"Області": ["region_name", "regions", "region_id"],
-                    "Райони": ["district_name", "districts", "district_id"],
-                    "Населенні пункти": ["locality_name", "localities", "locality_id"],
-                    "Вулиці": ["street_name", "streets", "streets_id"]
-                    }
+    def load_index(index: QtCore.QModelIndex):  # Функция для получения id нужного адреса
+        nonlocal current_address
+        nonlocal last_address
+        address_id = index.siblingAtColumn(1).data(QtCore.Qt.ItemDataRole.DisplayRole)
+        last_address = current_address  # Присвоение старого адреса к новой переменной
+        current_address = branch[last_address]["next_step"]  # Назначение нового адреса как текущего
+        branch[current_address]["f_key"] = address_id  # Назначение внешнего ключа к новому адресу
+        ui.address_lookup.clear()  # Очистка поля для поиска
+        addressTable()  # Заполнение таблицы
 
-    def sql_request(column, table, id):  # SQL запрос, который зависит от текущего текста в комбобоксе и есть ли текст в ячейке для поиска
-        cursor.execute(
-            f"select {column}, {id} from {table} where {column} like '%{ui.address_lookup.text()}%'")
-        result = cursor.fetchall()
+    """Словарь для хранения значений нужных для хождения по ветке адресов"""
+    branch = {
+        "Regions": {
+            "type_name": "Області",
+            "f_key": None,
+            "last_step": None,
+            "next_step": "Districts",
+            "DB_table": ["region_name", "regions", "region_id"]
+        },
+        "Districts": {
+            "type_name": "Райони",
+            "f_key": None,
+            "last_step": "Regions",
+            "next_step": "Localities",
+            "DB_table": ["district_name", "districts", "district_id"]
+        },
+        "Localities": {
+            "type_name": "Н.п.",
+            "f_key": None,
+            "last_step": "Districts",
+            "next_step": "Streets",
+            "DB_table": ["locality_name", "localities", "locality_id"]
+        },
+        "Streets": {
+            "type_name": "Вулиці",
+            "f_key": None,
+            "last_step": "Localities",
+            "next_step": "H_Numbers",
+            "DB_table": ["street_name", "streets", "streets_id"]
+        },
+        "H_Numbers": {
+            "type_name": "Будівлі",
+            "f_key": None,
+            "last_step": "Streets",
+            "next_step": None,
+            "DB_table": ["house_number", "house_numbers", "house_number_id"]
+        }
+    }
+
+    def sql_request(column, table, id_column, id):  # SQL запрос, который зависит от типа адреса на котором мы находимся
+        if table == "regions":  # SQL запрос если мы на таблице областей
+            cursor.execute(
+                f"select {column}, {id_column} from {table} where {column} like '%{ui.address_lookup.text()}%'")
+            result = cursor.fetchall()
+        else:  # SQL запрос если мы на любой другой таблице
+            last_step = branch[current_address]["last_step"]
+            cursor.execute(
+                f"""select {column}, {id_column} from {table} where {column} like '%{ui.address_lookup.text()}%' 
+                                                        AND {branch[last_step]["DB_table"][2]} = {id} """)
+            result = cursor.fetchall()
         return result
-    def addressTable():  # Таблица с aдрессами
-        cBox = ui.comboBox_change_table.currentText()  # Текущий текст в комбобоксе
-        result = sql_request(address_dict[cBox][0], address_dict[cBox][1], address_dict[cBox][2])  # SQL запрос
+
+    def check_connect(status=False):  # Функция для подключения и отключения функций к таблице адресов
+        if status == "numb":  # Если мы на странице списка домов, то откл. двойного нажатия
+            try:
+                ui.tableWidget.doubleClicked.disconnect()
+            except:
+                pass
+        if status and current_address != "H_Numbers":  # Если мы не на стр. списка домов и не в режиме ред. то откл. ред. ячеек таблици и подкл. дв. нажатия
+            try:
+                ui.tableWidget.cellChanged.disconnect()
+            except:
+                pass
+            ui.tableWidget.doubleClicked.connect(load_index)
+        elif not status:  # Если мы в режиме ред. то откл. дв. нажатия и подкл. ред. ячеек
+            try:
+                ui.tableWidget.doubleClicked.disconnect()
+            except:
+                pass
+            ui.tableWidget.cellChanged.connect(update_row)
+
+    def addressTable(id=None,
+                     return_b=False):  # Таблица с aдресами, заполнение зависит на каком мы сейчас типе адреса и от вида перехода(вперед по ветке или назад)
+        nonlocal current_address
+
+        def sql_tamlate():  # sql шаблон
+            result = sql_request(
+                branch[current_address]["DB_table"][0],
+                branch[current_address]["DB_table"][1],
+                branch[current_address]["DB_table"][2],
+                branch[current_address]["f_key"]
+            )
+            return result
+
+        if not return_b:  # SQL запрос при переходе дальше по ветке
+            if branch[current_address]["type_name"] not in branch_display:
+                branch_display.append(branch[current_address]["type_name"])
+            result = sql_tamlate()
+        else:  # SQL запрос при переходе по ветке на шаг назад
+            branch_display.pop(-1)
+            last_step = branch[current_address]["last_step"]  # Прошлый адрес
+            current_address = last_step  # Назначение прошлого адреса текущим
+            result = sql_tamlate()
+            ui.address_lookup.clear()  # Очистка поля для поиска
+
+        if current_address == "Regions":  # Если тип адреса "Області", то отключение кнопки возвращения
+            ui.returnButton.setEnabled(False)
+        else:
+            ui.returnButton.setEnabled(True)
+
+        check_connect("numb")  # Откл. двойного нажатия если мы на стр. списка домов и подкл. если мы не на ней
+
+        ui.label_2.setText("->".join(branch_display))  # Вывод текущей ветки
 
         """Заполнение таблицы"""
         ui.tableWidget.setColumnCount(2)
-        ui.tableWidget.setHorizontalHeaderLabels([f"{cBox}", "id"])
+        ui.tableWidget.setHorizontalHeaderLabels([f"{branch[current_address]['type_name']}", "id"])
         ui.tableWidget.setRowCount(len(result))
         for row, item in enumerate(result):
             ui.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(str(item[0])))
             ui.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(str(item[1])))
 
-    addressTable()  # Первое заполнение таблицы
-    ui.tableWidget.hideColumn(1)  # Скрытие колонки с id адрессов
-    ui.tableWidget.setSortingEnabled(True)  # Сортировка столбца
-    ui.comboBox_change_table.currentTextChanged.connect(addressTable)  # Заполнение таблицы при смене текста в комбобокс
-    ui.address_lookup.textChanged.connect(addressTable)   # Заполнение таблицы при смене текста в ячейке для поиска адресса
+    old_row_count = 0
 
-    ui.saveButton.setEnabled(False)
+    def state_change(status=False):  # Смена режима с редактирования на просмотр и наоборот
+        updated_rows.clear()  # Обнуление словаря обновленных строчек
+        if status:  # Если переход в режим редактирования
+            check_connect(False)
+            ui.tableWidget.setEditTriggers(QTableWidget.AllEditTriggers)
+            ui.editButton.setEnabled(False)
+            ui.returnButton.setEnabled(False)
+            ui.address_lookup.setEnabled(False)
+        else:  # Если переход в режим просмотра
+            check_connect(True)
+            if not current_address != "Regions":
+                ui.returnButton.setEnabled(True)
 
-    set_id = set()
+            ui.editButton.setEnabled(True)
+            ui.tableWidget.setEditTriggers(QTableWidget.NoEditTriggers)
 
-    def change_status():
-        ui.saveButton.setEnabled(True)
-        ui.comboBox_change_table.setEnabled(False)
-        ui.address_lookup.setEnabled(False)
+        nonlocal old_row_count
+        old_row_count = ui.tableWidget.rowCount()
+        ui.addButton.setEnabled(status)
+        ui.deleteButton.setEnabled(status)
+        ui.saveButton.setEnabled(status)
+
+    updated_rows = {}
+
+    def update_row():  # Запись id измененной строки и сам измененный текст в словарь
         id = ui.tableWidget.item(ui.tableWidget.currentRow(), 1).text()
-        set_id.add(id)
+        if id != "":
+            updated_rows[id] = ui.tableWidget.item(ui.tableWidget.currentRow(), 0).text()
 
-    def save_changes():
-        print(set_id)
+    def save_changes():  # Обновление, сохранение и удалиние данных в БД
+        ui.address_lookup.setEnabled(True)
 
-    ui.tableWidget.cellChanged.connect(change_status)
-    ui.saveButton.clicked.connect(save_changes)
+        table = branch[current_address]["DB_table"][1]
+        column = branch[current_address]["DB_table"][0]
+        column_id = branch[current_address]["DB_table"][2]
+
+        """Обновление отредактированных ячеек в БД"""
+        for id, row in updated_rows.items():
+            cursor.execute(
+                f"""UPDATE {table} SET {column}='{row}' WHERE {column_id}={id}""")
+            db.commit()
+
+        """Удаление строчек в БД"""
+        for id in deleted_rows:
+            cursor.execute(
+                f"""DELETE FROM {table} WHERE {column_id}={id}""")
+            db.commit()
+
+        """Добавление новых ячеек в БД"""
+        if current_address == "Regions":  # SQL запрос на добавление новых строк в БД, если мы на странице областей
+            for row in range(old_row_count, ui.tableWidget.rowCount()):
+                cursor.execute(f"""INSERT INTO {table}({column})
+                                                VALUES("{ui.tableWidget.item(row, 0).text()}")""")
+                db.commit()
+        else:  # SQL запрос на добавление новых строк в БД, если мы не на странице областей
+            l_address = branch[current_address]["last_step"]
+            f_key_column = branch[l_address]["DB_table"][2]
+
+            for row in range(old_row_count, ui.tableWidget.rowCount()):
+                cursor.execute(f"""INSERT INTO {table}({column}, {f_key_column})
+                                                VALUES("{ui.tableWidget.item(row, 0).text()}",
+                                                "{branch[current_address]["f_key"]}")""")
+                db.commit()
+
+        updated_rows.clear()
+        deleted_rows.clear()
+
+        state_change()
+        addressTable()
+
+    def add_new_row():  # Добавление новой строки в таблицу
+        try:
+            ui.tableWidget.cellChanged.disconnect()
+        except:
+            pass
+
+        new_row_count = ui.tableWidget.rowCount()
+        new_row_count += 1
+        ui.tableWidget.setRowCount(new_row_count)
+        ui.tableWidget.setItem(new_row_count - 1, 0, QtWidgets.QTableWidgetItem(""))
+        ui.tableWidget.setItem(new_row_count - 1, 1, QtWidgets.QTableWidgetItem(""))
+        ui.tableWidget.cellChanged.connect(update_row)
+
+    deleted_rows = set()
+
+    def del_new_row():  # Функция удаления строки
+        row = ui.tableWidget.currentRow()
+        if row > -1:  # Если есть выделенная строка/элемент
+            if ui.tableWidget.item(row,
+                                   1).text() == "":  # Если мы удаляем только что созданную строку, то она просто удаляеться
+                ui.tableWidget.removeRow(row)
+                ui.tableWidget.selectionModel().clearCurrentIndex()  # этот вызов нужен для того, чтобы сбросить индекс выбранной строки
+            else:  # Если мы удаляем строку которая есть в БД то она не пропадет а покрасится в серый и не удалится пока мы не нажмем сохранить
+                if current_address == "H_Numbers":
+                    ui.tableWidget.item(row, 0).setBackground(QtGui.QColor(192, 192, 192))
+                    deleted_rows.add(ui.tableWidget.item(row, 1).text())
+                    ui.tableWidget.selectionModel().clearCurrentIndex()  # этот вызов нужен для того, чтобы сбросить индекс выбранной строки
+                else:  # Проверка есть ли у выбранной для удаления строки вложенные адреса
+                    next_step = branch[current_address]["next_step"]
+                    colum_f_key = branch[current_address]["DB_table"][2]
+                    table = branch[next_step]["DB_table"][1]
+                    f_key = ui.tableWidget.item(row, 1).text()
+                    cursor.execute(
+                        f"select * from {table} where {colum_f_key}='{f_key}'")
+                    result = cursor.fetchall()
+                    if result:  # Если есть, то вызов окна предупреждения
+                        error_window()
+                    else:  # Если нет, то удаления из базы данных
+                        ui.tableWidget.item(row, 0).setBackground(QtGui.QColor(192, 192, 192))
+                        deleted_rows.add(ui.tableWidget.item(row, 1).text())
+                        ui.tableWidget.selectionModel().clearCurrentIndex()
+
+    state_change()  # Установка в первом запуске режим просмотра
+    ui.addButton.clicked.connect(add_new_row)  # Кнопка добавления новой строки
+    ui.deleteButton.clicked.connect(del_new_row)  # Кнопка удаления строки
+    ui.saveButton.clicked.connect(save_changes)  # Кнопка сохранения измененных, добавленных и удаленных строк
+    ui.editButton.clicked.connect(lambda sh, status=True: state_change(status))
+    addressTable()  # Первое заполнение таблицы
+    ui.tableWidget.setEditTriggers(QTableWidget.NoEditTriggers)  # Отключение редактировани ячеек таблицы
+    ui.tableWidget.hideColumn(1)  # Скрытие колонки с id адрессов
+    ui.address_lookup.textChanged.connect(
+        lambda sh, id=branch[current_address]["f_key"]: addressTable(
+            id))  # Заполнение таблицы при смене текста в ячейке для поиска адресса
+    ui.returnButton.clicked.connect(
+        lambda sh, id=None, ret=True: addressTable(id, ret))  # Кнопка возвращения на пред. шаг
+    ui.tableWidget.doubleClicked.connect(load_index)  # Переход на список след. тип адреса выбраного адреса двойным нажатием мышки
+
+
+def error_window():
+    global errorWindow
+    errorWindow = QtWidgets.QDialog()
+    ui = Ui_errorWindow()
+    ui.setupUi(errorWindow)
+    errorWindow.show()
+
+    ui.label.setText(f"Помилка: в даній адресі є вкладені адреси, \nвидаліть їх спочатку")
+
+    def close_window():
+        errorWindow.close()
+
+    ui.pushButton.clicked.connect(close_window)
+
 
 def katalog():  # Главная окно со списком карточек
     app = QtWidgets.QApplication(sys.argv)
