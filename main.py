@@ -946,6 +946,10 @@ def address_lists():
                 ui.tableWidget.doubleClicked.disconnect()
             except:
                 pass
+            try:
+                ui.tableWidget.cellChanged.disconnect()
+            except:
+                pass
         if status and current_address != "H_Numbers":  # Если мы не на стр. списка домов и не в режиме ред. то откл. ред. ячеек таблици и подкл. дв. нажатия
             try:
                 ui.tableWidget.cellChanged.disconnect()
@@ -959,8 +963,7 @@ def address_lists():
                 pass
             ui.tableWidget.cellChanged.connect(update_row)
 
-    def addressTable(id=None,
-                     return_b=False):  # Таблица с aдресами, заполнение зависит на каком мы сейчас типе адреса и от вида перехода(вперед по ветке или назад)
+    def addressTable(id=None, return_b=False):  # Таблица с aдресами, заполнение зависит на каком мы сейчас типе адреса и от вида перехода(вперед по ветке или назад)
         nonlocal current_address
 
         def sql_tamlate():  # sql шаблон
@@ -972,7 +975,7 @@ def address_lists():
             )
             return result
 
-        if not return_b:  # SQL запрос при переходе дальше по ветке
+        if not return_b:  # SQL запрос при переходе дальше по ветке и при обновлении таблицы
             if branch[current_address]["type_name"] not in branch_display:
                 branch_display.append(branch[current_address]["type_name"])
             result = sql_tamlate()
@@ -996,6 +999,7 @@ def address_lists():
         ui.tableWidget.setColumnCount(2)
         ui.tableWidget.setHorizontalHeaderLabels([f"{branch[current_address]['type_name']}", "id"])
         ui.tableWidget.setRowCount(len(result))
+
         for row, item in enumerate(result):
             ui.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(str(item[0])))
             ui.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(str(item[1])))
@@ -1003,6 +1007,7 @@ def address_lists():
     old_row_count = 0
 
     def state_change(status=False):  # Смена режима с редактирования на просмотр и наоборот
+
         updated_rows.clear()  # Обнуление словаря обновленных строчек
         if status:  # Если переход в режим редактирования
             check_connect(False)
@@ -1010,6 +1015,7 @@ def address_lists():
             ui.editButton.setEnabled(False)
             ui.returnButton.setEnabled(False)
             ui.address_lookup.setEnabled(False)
+            ui.cancelButton.setStyleSheet("background-color: rgb(255, 49, 52)")
         else:  # Если переход в режим просмотра
             check_connect(True)
             if not current_address != "Regions":
@@ -1017,12 +1023,14 @@ def address_lists():
 
             ui.editButton.setEnabled(True)
             ui.tableWidget.setEditTriggers(QTableWidget.NoEditTriggers)
+            ui.cancelButton.setStyleSheet("background-color: rgb(255, 123, 123)")
 
         nonlocal old_row_count
         old_row_count = ui.tableWidget.rowCount()
         ui.addButton.setEnabled(status)
         ui.deleteButton.setEnabled(status)
         ui.saveButton.setEnabled(status)
+        ui.cancelButton.setEnabled(status)
 
     updated_rows = {}
 
@@ -1031,7 +1039,7 @@ def address_lists():
         if id != "":
             updated_rows[id] = ui.tableWidget.item(ui.tableWidget.currentRow(), 0).text()
 
-    def save_changes():  # Обновление, сохранение и удалиние данных в БД
+    def save_changes():  # Обновление, сохранение и удаление данных в БД
         ui.address_lookup.setEnabled(True)
 
         table = branch[current_address]["DB_table"][1]
@@ -1090,8 +1098,7 @@ def address_lists():
     def del_new_row():  # Функция удаления строки
         row = ui.tableWidget.currentRow()
         if row > -1:  # Если есть выделенная строка/элемент
-            if ui.tableWidget.item(row,
-                                   1).text() == "":  # Если мы удаляем только что созданную строку, то она просто удаляеться
+            if ui.tableWidget.item(row, 1).text() == "":  # Если мы удаляем только что созданную строку, то она просто удаляеться
                 ui.tableWidget.removeRow(row)
                 ui.tableWidget.selectionModel().clearCurrentIndex()  # этот вызов нужен для того, чтобы сбросить индекс выбранной строки
             else:  # Если мы удаляем строку которая есть в БД то она не пропадет а покрасится в серый и не удалится пока мы не нажмем сохранить
@@ -1114,7 +1121,15 @@ def address_lists():
                         deleted_rows.add(ui.tableWidget.item(row, 1).text())
                         ui.tableWidget.selectionModel().clearCurrentIndex()
 
+    def cancel_changes():
+        ui.address_lookup.setEnabled(True)
+        updated_rows.clear()
+        deleted_rows.clear()
+        state_change()
+        addressTable()
+
     state_change()  # Установка в первом запуске режим просмотра
+    ui.cancelButton.clicked.connect(cancel_changes)
     ui.addButton.clicked.connect(add_new_row)  # Кнопка добавления новой строки
     ui.deleteButton.clicked.connect(del_new_row)  # Кнопка удаления строки
     ui.saveButton.clicked.connect(save_changes)  # Кнопка сохранения измененных, добавленных и удаленных строк
