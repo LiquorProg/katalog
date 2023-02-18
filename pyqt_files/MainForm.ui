@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1181</width>
-    <height>848</height>
+    <height>894</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -192,6 +192,12 @@
             <pointsize>11</pointsize>
            </font>
           </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="maxLength">
+           <number>10</number>
+          </property>
          </widget>
         </item>
         <item row="2" column="0">
@@ -221,6 +227,9 @@
            <font>
             <pointsize>11</pointsize>
            </font>
+          </property>
+          <property name="maxLength">
+           <number>20</number>
           </property>
          </widget>
         </item>
@@ -252,6 +261,9 @@
             <pointsize>11</pointsize>
            </font>
           </property>
+          <property name="maxLength">
+           <number>20</number>
+          </property>
          </widget>
         </item>
         <item row="3" column="0">
@@ -281,6 +293,9 @@
            <font>
             <pointsize>11</pointsize>
            </font>
+          </property>
+          <property name="maxLength">
+           <number>20</number>
           </property>
          </widget>
         </item>

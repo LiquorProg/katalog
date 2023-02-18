@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_errorWindow(object):
     def setupUi(self, errorWindow):
         errorWindow.setObjectName("errorWindow")
-        errorWindow.resize(365, 128)
+        errorWindow.resize(365, 132)
         self.gridLayout_2 = QtWidgets.QGridLayout(errorWindow)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.label = QtWidgets.QLabel(errorWindow)
@@ -46,7 +46,7 @@ class Ui_errorWindow(object):
 
     def retranslateUi(self, errorWindow):
         _translate = QtCore.QCoreApplication.translate
-        errorWindow.setWindowTitle(_translate("errorWindow", "Dialog"))
+        errorWindow.setWindowTitle(_translate("errorWindow", "Попередження!"))
         self.label.setText(_translate("errorWindow", "TextLabel"))
         self.pushButton.setText(_translate("errorWindow", "Ок"))
 

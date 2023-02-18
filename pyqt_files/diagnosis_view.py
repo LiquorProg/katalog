@@ -30,6 +30,7 @@ class Ui_Dialog_view_diag(object):
         font = QtGui.QFont()
         font.setPointSize(11)
         self.apart_view_diag.setFont(font)
+        self.apart_view_diag.setMaxLength(10)
         self.apart_view_diag.setObjectName("apart_view_diag")
         self.gridLayout.addWidget(self.apart_view_diag, 1, 1, 1, 1)
         self.label_10_view = QtWidgets.QLabel(Dialog_view_diag)
@@ -58,6 +59,7 @@ class Ui_Dialog_view_diag(object):
         font = QtGui.QFont()
         font.setPointSize(11)
         self.patient_view_diag.setFont(font)
+        self.patient_view_diag.setMaxLength(20)
         self.patient_view_diag.setObjectName("patient_view_diag")
         self.gridLayout.addWidget(self.patient_view_diag, 2, 1, 1, 1)
         self.dateEdit_view_diag = QtWidgets.QDateEdit(Dialog_view_diag)
@@ -128,7 +130,7 @@ class Ui_Dialog_view_diag(object):
 
     def retranslateUi(self, Dialog_view_diag):
         _translate = QtCore.QCoreApplication.translate
-        Dialog_view_diag.setWindowTitle(_translate("Dialog_view_diag", "Dialog"))
+        Dialog_view_diag.setWindowTitle(_translate("Dialog_view_diag", "Перегляд діагнозу"))
         self.label_10_view.setText(_translate("Dialog_view_diag", "Дата"))
         self.label_12_view.setText(_translate("Dialog_view_diag", "Пацієнт"))
         self.label_11_view.setText(_translate("Dialog_view_diag", "кв."))

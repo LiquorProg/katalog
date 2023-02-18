@@ -129,7 +129,7 @@ class Ui_Dialog_add_diag(object):
 
     def retranslateUi(self, Dialog_add_diag):
         _translate = QtCore.QCoreApplication.translate
-        Dialog_add_diag.setWindowTitle(_translate("Dialog_add_diag", "Dialog"))
+        Dialog_add_diag.setWindowTitle(_translate("Dialog_add_diag", "Новий діагноз"))
         self.label_10.setText(_translate("Dialog_add_diag", "Дата"))
         self.label_12.setText(_translate("Dialog_add_diag", "Пацієнт"))
         self.label_11.setText(_translate("Dialog_add_diag", "кв."))

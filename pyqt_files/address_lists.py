@@ -109,7 +109,7 @@ class Ui_Address_listsWindow(object):
         font = QtGui.QFont()
         font.setPointSize(12)
         self.cancelButton.setFont(font)
-        self.cancelButton.setStyleSheet("background-color: rgb(255, 49, 52);")
+        self.cancelButton.setStyleSheet("background-color: rgb(255, 105, 105);")
         self.cancelButton.setObjectName("cancelButton")
         self.gridLayout_4.addWidget(self.cancelButton, 0, 2, 1, 1)
         self.gridLayout.addLayout(self.gridLayout_4, 1, 0, 1, 2)
@@ -127,7 +127,7 @@ class Ui_Address_listsWindow(object):
 
     def retranslateUi(self, Address_listsWindow):
         _translate = QtCore.QCoreApplication.translate
-        Address_listsWindow.setWindowTitle(_translate("Address_listsWindow", "MainWindow"))
+        Address_listsWindow.setWindowTitle(_translate("Address_listsWindow", "Адреси"))
         self.label.setText(_translate("Address_listsWindow", "Пошук"))
         self.editButton.setText(_translate("Address_listsWindow", "Редагувати"))
         self.saveButton.setText(_translate("Address_listsWindow", "Зберегти"))

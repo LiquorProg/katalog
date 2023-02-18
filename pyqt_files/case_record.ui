@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>891</width>
+    <width>960</width>
     <height>980</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Нова картка</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2">
@@ -122,6 +122,9 @@
          <font>
           <pointsize>11</pointsize>
          </font>
+        </property>
+        <property name="maxLength">
+         <number>50</number>
         </property>
        </widget>
       </item>
@@ -394,6 +397,9 @@
             <pointsize>11</pointsize>
            </font>
           </property>
+          <property name="maxLength">
+           <number>15</number>
+          </property>
          </widget>
         </item>
         <item row="0" column="0">
@@ -474,6 +480,9 @@
           <property name="text">
            <string/>
           </property>
+          <property name="maxLength">
+           <number>15</number>
+          </property>
          </widget>
         </item>
         <item row="0" column="2">
@@ -523,6 +532,9 @@
             <pointsize>11</pointsize>
            </font>
           </property>
+          <property name="maxLength">
+           <number>15</number>
+          </property>
          </widget>
         </item>
         <item row="0" column="6">
@@ -546,6 +558,9 @@
           </property>
           <property name="text">
            <string/>
+          </property>
+          <property name="maxLength">
+           <number>15</number>
           </property>
          </widget>
         </item>
@@ -631,18 +646,27 @@ p, li { white-space: pre-wrap; }
       <property name="rightMargin">
        <number>20</number>
       </property>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_4_6">
+      <item row="0" column="1">
+       <widget class="QComboBox" name="comboBox_region_name">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="font">
          <font>
-          <pointsize>12</pointsize>
+          <pointsize>11</pointsize>
          </font>
         </property>
-        <property name="text">
-         <string>Населений пункт</string>
+        <property name="tabletTracking">
+         <bool>true</bool>
         </property>
-        <property name="margin">
-         <number>2</number>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
         </property>
        </widget>
       </item>
@@ -688,6 +712,21 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="sizeAdjustPolicy">
          <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_4_6">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Населений пункт</string>
+        </property>
+        <property name="margin">
+         <number>2</number>
         </property>
        </widget>
       </item>
@@ -755,21 +794,6 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_4_4">
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Район</string>
-        </property>
-        <property name="margin">
-         <number>2</number>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_4_5">
         <property name="font">
@@ -779,6 +803,21 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="text">
          <string>Область</string>
+        </property>
+        <property name="margin">
+         <number>2</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_4_4">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Район</string>
         </property>
         <property name="margin">
          <number>2</number>
@@ -809,27 +848,75 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="comboBox_region_name">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
+      <item row="0" column="2">
+       <widget class="QLabel" name="error_region">
         <property name="font">
          <font>
           <pointsize>11</pointsize>
          </font>
         </property>
-        <property name="tabletTracking">
-         <bool>true</bool>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(255, 0, 0);</string>
         </property>
-        <property name="autoFillBackground">
-         <bool>false</bool>
+        <property name="text">
+         <string>TextLabel</string>
         </property>
-        <property name="editable">
-         <bool>true</bool>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
-        <property name="sizeAdjustPolicy">
-         <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="error_district">
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(255, 0, 0);</string>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="error_locality">
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(255, 0, 0);</string>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLabel" name="error_street">
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(255, 0, 0);</string>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -1014,7 +1101,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>891</width>
+     <width>960</width>
      <height>21</height>
     </rect>
    </property>

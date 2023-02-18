@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Перегляд діагнозу</string>
   </property>
   <layout class="QFormLayout" name="formLayout_2">
    <item row="0" column="0">
@@ -40,6 +40,9 @@
         <font>
          <pointsize>11</pointsize>
         </font>
+       </property>
+       <property name="maxLength">
+        <number>10</number>
        </property>
       </widget>
      </item>
@@ -100,6 +103,9 @@
         <font>
          <pointsize>11</pointsize>
         </font>
+       </property>
+       <property name="maxLength">
+        <number>20</number>
        </property>
       </widget>
      </item>
