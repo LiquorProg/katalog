@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
-    <height>218</height>
+    <width>541</width>
+    <height>238</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -105,13 +105,19 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="minimumSize">
+        <size>
+         <width>200</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="font">
         <font>
          <pointsize>11</pointsize>
         </font>
        </property>
        <property name="maxLength">
-        <number>20</number>
+        <number>30</number>
        </property>
       </widget>
      </item>

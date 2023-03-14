@@ -6,7 +6,7 @@ from contextlib import closing
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QDate, QRegExp
-from PyQt5.QtWidgets import QFileDialog, QVBoxLayout, QLabel, QWidget, QTableWidget
+from PyQt5.QtWidgets import QFileDialog, QVBoxLayout, QLabel, QWidget, QTableWidget, QMessageBox
 from PyQt5.QtGui import QPixmap, QRegExpValidator
 
 from pyqt_files.MainForm import Ui_MainWindow
@@ -38,15 +38,15 @@ def otherWindow():  # Создание новой карточки пациен�
         ui.error_house_numb.setText("")
     clear_fields()
 
-    ui.comboBox_streets.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])  # Комбобокс с типами улиц
+    ui.comboBox_streets.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект", "узвіз"])  # Комбобокс с типами улиц
     ui.comboBox_locality_type.addItems(["місто", "СМТ", "село", "селище", "хутір"])  # Комбобокс с типами населенных пунктов
 
     def address_dict_func():  # Словарь со списками названий таблиц, колонок и текущего адреса в комбобоксе для корректного SQL запроса
         address_dict = {
-            "1": ["district_name", "districts", "region_id", "regions", "region_name", ui.comboBox_region_name.currentText()],
-            "2": ["locality_name", "localities", "district_id", "districts", "district_name", ui.comboBox_district_name.currentText()],
-            "3": ["street_name", "streets", "locality_id", "localities", "locality_name", ui.comboBox_locality_name.currentText()],
-            "4": ["house_number", "house_numbers", "streets_id", "streets", "street_name", ui.comboBox_streets_name.currentText()],
+            "1": ["district_name", "districts", "region_id", "regions", "region_name", ui.comboBox_region_name.currentText().strip()],
+            "2": ["locality_name", "localities", "district_id", "districts", "district_name", ui.comboBox_district_name.currentText().strip()],
+            "3": ["street_name", "streets", "locality_id", "localities", "locality_name", ui.comboBox_locality_name.currentText().strip()],
+            "4": ["house_number", "house_numbers", "streets_id", "streets", "street_name", ui.comboBox_streets_name.currentText().strip()],
         }
         return address_dict
 
@@ -113,20 +113,20 @@ def otherWindow():  # Создание новой карточки пациен�
 
     def receive_data():  # Присвоение переменных
         fields = {
-            "info": ui.general_chatacteristics.toPlainText(),
-            "street": ui.comboBox_streets_name.currentText(),
-            "affil": ui.affiliation.text(),
-            "mobile": ui.mobile_1.text(),
-            "mobile_2": ui.mobile_2.text(),
-            "work_ph": ui.work_phone.text(),
-            "home_ph": ui.home_phone.text(),
-            "house_numb": ui.comboBox_house_number.currentText(),
-            "street_t": ui.comboBox_streets.currentText(),
-            "manag": ui.manager.toPlainText(),
-            "region_name": ui.comboBox_region_name.currentText(),
-            "district_name": ui.comboBox_district_name.currentText(),
-            "locality_t": ui.comboBox_locality_type.currentText(),
-            "locality_name": ui.comboBox_locality_name.currentText(),
+            "info": ui.general_chatacteristics.toPlainText().strip(),
+            "street": ui.comboBox_streets_name.currentText().strip(),
+            "affil": ui.affiliation.text().strip(),
+            "mobile": ui.mobile_1.text().strip(),
+            "mobile_2": ui.mobile_2.text().strip(),
+            "work_ph": ui.work_phone.text().strip(),
+            "home_ph": ui.home_phone.text().strip(),
+            "house_numb": ui.comboBox_house_number.currentText().strip(),
+            "street_t": ui.comboBox_streets.currentText().strip(),
+            "manag": ui.manager.toPlainText().strip(),
+            "region_name": ui.comboBox_region_name.currentText().strip(),
+            "district_name": ui.comboBox_district_name.currentText().strip(),
+            "locality_t": ui.comboBox_locality_type.currentText().strip(),
+            "locality_name": ui.comboBox_locality_name.currentText().strip(),
         }
         return fields
 
@@ -190,19 +190,28 @@ def otherWindow():  # Создание новой карточки пациен�
                 db.commit()
         CardNew.close()
 
-    def save_to_file_Pat():  # Сохранение всей информации пациента в формате json
+    def save_as_to_file_Pat_edit():  # Функция выбора новой директории для файла и сохранения в ней
+        global old_directory
         fields = receive_data()
-        with open(f"save_cards/{fields['street_t']} {fields['street']}, {fields['house_numb']}.json", "w") as out_file:
-            table = {}
-            if ui.tableWidget_diag.rowCount() > 0:
-                for row in range(ui.tableWidget_diag.rowCount()):
-                    table[str(row)] = [
-                        ui.tableWidget_diag.item(row, 0).text(),
-                        ui.tableWidget_diag.item(row, 1).text(),
-                        ui.tableWidget_diag.item(row, 2).text(),
-                        ui.tableWidget_diag.item(row, 3).text()
-                    ]
-            json.dump([fields, table], out_file, indent=4, sort_keys=True)
+
+        """Получение нового пути хранения файла"""
+        directory_for_save = QFileDialog.getSaveFileName(
+            CardNew, "Місце для збереження файлу",
+            f"save_cards\\{fields['street_t']} {fields['street']}, {fields['house_numb']}.json",
+            "Карточки формата json (*.json)")[0]
+
+        if directory_for_save != "":  # Если новый путь получен, то создания нового файла по новому пути и удаление старого файла
+            with open(f"{directory_for_save}", "w") as out_file:
+                table = {}
+                if ui.tableWidget_diag.rowCount() > 0:
+                    for row in range(ui.tableWidget_diag.rowCount()):
+                        table[str(row)] = [
+                            ui.tableWidget_diag.item(row, 0).text(),
+                            ui.tableWidget_diag.item(row, 1).text(),
+                            ui.tableWidget_diag.item(row, 2).text(),
+                            ui.tableWidget_diag.item(row, 3).text()
+                        ]
+                json.dump([fields, table], out_file, indent=4, sort_keys=True)
 
     global add_new_row
 
@@ -239,7 +248,6 @@ def otherWindow():  # Создание новой карточки пациен�
         ui.tableWidget_diag.setItem(row, 2, QtWidgets.QTableWidgetItem(items[2]))
         ui.tableWidget_diag.setItem(row, 3, QtWidgets.QTableWidgetItem(items[3]))
 
-    global entering_additional_information
     def entering_additional_information(pat_id):  # Добавление доп. информации(общей характиристики и диагнозов)
         fields = receive_data()
 
@@ -270,7 +278,7 @@ def otherWindow():  # Создание новой карточки пациен�
                 db.commit()
         CardNew.close()
 
-    def field_validation(button):  # Проверка обязательных полей на наличие текста в них
+    def field_validation():  # Проверка обязательных полей на наличие текста в них
         check_lst = []
         def check(combobox, error):
             if combobox.currentText().strip() == "":
@@ -288,10 +296,7 @@ def otherWindow():  # Создание новой карточки пациен�
         check(ui.comboBox_house_number, ui.error_house_numb)
 
         if all(check_lst):
-            if button == 1:
-                checking_the_address_for_availability()
-            else:
-                save_to_file_Pat()
+            checking_the_address_for_availability()
             clear_fields()
 
     def checking_the_address_for_availability():  # Проверка при попытке добавить новую карточку, адреса, существует ли уже карточка по такому же адресу
@@ -309,19 +314,23 @@ def otherWindow():  # Создание новой карточки пациен�
         print(all_existing_addresses)
 
         if current_address in all_existing_addresses:  # Если карточка с таким адресом уже существует, то вызывается окно предупреждения, если нет то карточка просто добавляеться в картотеку
-            id = all_existing_addresses[current_address]
-            print(id)
-            error_window(
-                f"Картка по цій адресі вже існує у картотеці! Її номер - {id}.\nЗагальна характеристика і діагнози додадуться в неї.", 2, id)
+            card_id = all_existing_addresses[current_address]
+            print(card_id)
+            msgBox = QMessageBox().warning(
+                CardNew, "Попередження!",
+                f"Картка по цій адресі вже існує у картотеці! Її номер - {card_id}.\nЗагальна характеристика і діагнози додадуться в неї.",
+                QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msgBox == 1024:
+                entering_additional_information(card_id)
         else:
             savePat()
 
 
     ui.tableWidget_diag.doubleClicked.connect(load_row_index)  # Открытие окна ред. диагноза на двойное нажатие на ячейку таблицы
-    ui.del_from_diag_Button.clicked.connect(del_row)  # Кнопка удаления строки
+    ui.del_from_diag_Button.clicked.connect(del_row)  # Кнопка удаления строки в таблице диагнозов
     ui.add_to_diag_Button.clicked.connect(lambda sh, window=1: add_new_diagnosis(window))  # Кнопка открытия окна с полями для заполнения диагноза
-    ui.save_to_fileButton.clicked.connect(lambda sh, button=2: field_validation(button))  # Кнопка сохранения данных из ячеек в виде файла
-    ui.saveButton.clicked.connect(lambda sh, button=1: field_validation(button))  # Кнопка сохранения информациия занесённой в ячейках в базу данных
+    ui.save_to_fileButton.clicked.connect(save_as_to_file_Pat_edit)  # Кнопка сохранения данных из ячеек в виде файла
+    ui.saveButton.clicked.connect(field_validation)  # Кнопка сохранения информации занесённой в ячейках в базу данных
 
 
 def add_new_diagnosis(window, name='', id=None):  # Окно для добавления новых диагнозов
@@ -453,10 +462,10 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
 
     def address_dict_func():  # Словарь со списками названий таблиц, колонок и текущего адреса в комбобоксе для корректного SQL запроса
         address_dict = {
-            "1": ["district_name", "districts", "region_id", "regions", "region_name", ui.comboBox_region_name_2.currentText()],
-            "2": ["locality_name", "localities", "district_id", "districts", "district_name", ui.comboBox_district_name_2.currentText()],
-            "3": ["street_name", "streets", "locality_id", "localities", "locality_name", ui.comboBox_locality_name_2.currentText()],
-            "4": ["house_number", "house_numbers", "streets_id", "streets", "street_name", ui.comboBox_streets_name_2.currentText()],
+            "1": ["district_name", "districts", "region_id", "regions", "region_name", ui.comboBox_region_name_2.currentText().strip()],
+            "2": ["locality_name", "localities", "district_id", "districts", "district_name", ui.comboBox_district_name_2.currentText().strip()],
+            "3": ["street_name", "streets", "locality_id", "localities", "locality_name", ui.comboBox_locality_name_2.currentText().strip()],
+            "4": ["house_number", "house_numbers", "streets_id", "streets", "street_name", ui.comboBox_streets_name_2.currentText().strip()],
         }
         return address_dict
 
@@ -506,7 +515,7 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
             cursor.execute(f"SELECT * FROM cards WHERE cards_id = {id}")
             new_result = cursor.fetchall()
 
-            ui.comboBox_streets_2.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])  # Комбобокс с типами улиц
+            ui.comboBox_streets_2.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект", "узвіз"])  # Комбобокс с типами улиц
             ui.comboBox_locality_type_2.addItems(["місто", "СМТ", "село", "селище", "хутір"])  # Комбобокс с типами населенных пунктов
             ui.comboBox_streets_2.setCurrentText(str(new_result[0][9]))
             ui.comboBox_locality_type_2.setCurrentText(str(new_result[0][13]))
@@ -599,20 +608,20 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
 
     def receive_data():  # Присвоение переменных
         fields = {
-            "info": ui.general_chatacteristics_2.toPlainText(),
-            "street": ui.comboBox_streets_name_2.currentText(),
-            "affil": ui.affiliation_2.text(),
-            "mobile": ui.mobile_1_2.text(),
-            "mobile_2": ui.mobile_2_2.text(),
-            "work_ph": ui.work_phone_2.text(),
-            "home_ph": ui.home_phone_2.text(),
-            "house_numb": ui.comboBox_house_number_2.currentText(),
-            "street_t": ui.comboBox_streets_2.currentText(),
-            "manag": ui.manager_2.toPlainText(),
-            "region_name": ui.comboBox_region_name_2.currentText(),
-            "district_name": ui.comboBox_district_name_2.currentText(),
-            "locality_t": ui.comboBox_locality_type_2.currentText(),
-            "locality_name": ui.comboBox_locality_name_2.currentText(),
+            "info": ui.general_chatacteristics_2.toPlainText().strip(),
+            "street": ui.comboBox_streets_name_2.currentText().strip(),
+            "affil": ui.affiliation_2.text().strip(),
+            "mobile": ui.mobile_1_2.text().strip(),
+            "mobile_2": ui.mobile_2_2.text().strip(),
+            "work_ph": ui.work_phone_2.text().strip(),
+            "home_ph": ui.home_phone_2.text().strip(),
+            "house_numb": ui.comboBox_house_number_2.currentText().strip(),
+            "street_t": ui.comboBox_streets_2.currentText().strip(),
+            "manag": ui.manager_2.toPlainText().strip(),
+            "region_name": ui.comboBox_region_name_2.currentText().strip(),
+            "district_name": ui.comboBox_district_name_2.currentText().strip(),
+            "locality_t": ui.comboBox_locality_type_2.currentText().strip(),
+            "locality_name": ui.comboBox_locality_name_2.currentText().strip(),
         }
         return fields
 
@@ -719,33 +728,47 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
 
     ui.pat_name_2.textChanged.connect(diagnosesTable)  # Заполнение таблици при вводе имени пациента в ячейку для поиска пациента
 
-    global deleting_patients_diagnosis
-
     def deleting_patients_diagnosis():  # Удаления выбранного диагноза
-        row = ui.tableWidget_diag_edit.currentRow()
-        if row > -1:  # Если есть выделенная строка/элемент
-            diag_id = ui.tableWidget_diag_edit.item(row, 4).text()
-            print(diag_id, row)
-            cursor.execute(
-                f"""DELETE FROM diagnoses WHERE diagnosis_id={diag_id}""")
-            db.commit()
-            diagnosesTable()
+        msgBox = QMessageBox().warning(
+            CardEdit, "Попередження!",
+            "Діагноз видалится без можливості відновитись.\nВидалити діагноз?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        print(msgBox)
 
-            ui.tableWidget_diag_edit.selectionModel().clearCurrentIndex()  # этот вызов нужен для того, чтобы сбросить индекс выбранной строки
+        if msgBox == 16384:
+            row = ui.tableWidget_diag_edit.currentRow()
+            if row > -1:  # Если есть выделенная строка/элемент
+                diag_id = ui.tableWidget_diag_edit.item(row, 4).text()
+                print(diag_id, row)
+                cursor.execute(
+                    f"""DELETE FROM diagnoses WHERE diagnosis_id={diag_id}""")
+                db.commit()
+                diagnosesTable()
 
-    def save_to_file_Pat_edit():  # Сохранение всей информации в формате json
+                ui.tableWidget_diag_edit.selectionModel().clearCurrentIndex()  # этот вызов нужен для того, чтобы сбросить индекс выбранной строки
+
+    def save_as_to_file_Pat_edit():  # Функция выбора новой директории для файла и сохранения в ней
         fields = receive_data()
-        with open(f"save_cards/{fields['street_t']} {fields['street']}, {fields['house_numb']}.json", "w") as out_file:
-            table = {}
-            if ui.tableWidget_diag_edit.rowCount() > 0:
-                for row in range(ui.tableWidget_diag_edit.rowCount()):
-                    table[str(row)] = [
-                        ui.tableWidget_diag_edit.item(row, 0).text(),
-                        ui.tableWidget_diag_edit.item(row, 1).text(),
-                        ui.tableWidget_diag_edit.item(row, 2).text(),
-                        ui.tableWidget_diag_edit.item(row, 3).text()
-                    ]
-            json.dump([fields, table], out_file, indent=4, sort_keys=True)
+
+        """Получение нового пути хранения файла"""
+        directory_for_save = QFileDialog.getSaveFileName(
+            CardEdit, "Місце для збереження файлу",
+            f"save_cards\\{fields['street_t']} {fields['street']}, {fields['house_numb']}.json",
+            "Карточки формата json (*.json)")[0]
+
+        if directory_for_save != "":  # Если новый путь получен, то создания нового файла по новому пути и удаление старого файла
+            with open(f"{directory_for_save}", "w") as out_file:
+                table = {}
+                if ui.tableWidget_diag_edit.rowCount() > 0:
+                    for row in range(ui.tableWidget_diag_edit.rowCount()):
+                        table[str(row)] = [
+                            ui.tableWidget_diag_edit.item(row, 0).text(),
+                            ui.tableWidget_diag_edit.item(row, 1).text(),
+                            ui.tableWidget_diag_edit.item(row, 2).text(),
+                            ui.tableWidget_diag_edit.item(row, 3).text()
+                        ]
+                json.dump([fields, table], out_file, indent=4, sort_keys=True)
+
 
     def load_info_from_file_edit():  # Загрузка дополнительных данных из выбраного файла
         fname = QFileDialog().getOpenFileName(CardEdit, "Open", "save_cards", "Карточки формата json (*.json)")
@@ -814,22 +837,24 @@ def otherWindow_2(id):  # Просмотр и редактирование ка�
         print(all_existing_addresses)
 
         if current_address in all_existing_addresses:  # Если карточка с таким адресом уже существует, то вызывается окно предупреждения
-            pat_id = all_existing_addresses[current_address]
-            print(pat_id)
-            error_window(
-                f"Картка по цій адресі вже існує у картотеці! Її номер - {pat_id}.\nВідмініть зміни або запишіть нову адресу.", None, pat_id)
+            card_id = all_existing_addresses[current_address]
+            print(card_id)
+            msgBox = QMessageBox().warning(
+                CardEdit, "Попередження!",
+                f"Картка по цій адресі вже існує у картотеці! Її номер - {card_id}.\nВідмініть зміни або запишіть нову адресу.",
+                QMessageBox.StandardButton.Ok)
+            print(msgBox)
         else:
             editPat()  # Сохранение всех данных в БД
+            print("asdas")
 
     ui.cancelButton.clicked.connect(cancel_changes)  # Кнопка отмены изменений и переход режим просмотра
     ui.photoButton.clicked.connect(lambda sh, card_id=id: photoWindow(card_id))  # Кнопка открытия папки ч фото пациентов
     ui.addButton_2.clicked.connect(load_info_from_file_edit)  # Кнопка добавления информации в карточку из файла
-    ui.save_to_fileButton_2.clicked.connect(save_to_file_Pat_edit)  # Кнопка сохранения информации в виде файла
+    ui.save_to_fileButton_2.clicked.connect(save_as_to_file_Pat_edit)  # Кнопка сохранения информации в виде файла
     ui.add_to_diag_Button.clicked.connect(
         lambda sh, window=2, name=str(result[0][1]), card_id=id: add_new_diagnosis(window, name, card_id))  # Кнопка для открытия нового окна для создания новой записи таблицы диагнозов
-    ui.del_from_diag_Button.clicked.connect(
-        lambda sh, txt=f"Діагноз видалится без можливості відновитись",
-        type=4, thi=None: error_window(txt, type, thi))  # Кнопка для удаления диагнозов
+    ui.del_from_diag_Button.clicked.connect(deleting_patients_diagnosis)  # Кнопка для удаления диагнозов
     ui.editButton.clicked.connect(lambda sh, stat=False: switch(stat))  # Кнопка для редактирования ячеек
     ui.saveButton_2.clicked.connect(field_validation)  # Кнопка сохранения
 
@@ -858,7 +883,7 @@ def photoWindow(id):
         photo.resize(pixmap.width(), pixmap.height())
 
 
-def otherWindow_3(file_data):  # Окно для просмотра файлов
+def otherWindow_3(file_data, file_directory):  # Окно для просмотра файлов
     global CardFile
     CardFile = QtWidgets.QMainWindow()
     ui = Ui_CardFile()
@@ -876,15 +901,15 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
         ui.error_save_file.setText("")
     clear_fields()
 
-    ui.comboBox_streets_3.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект"])  # Комбобокс с типами улиц
+    ui.comboBox_streets_3.addItems(["вулиця", "провулок", "бульвар", "шоссе", "проспект", "узвіз"])  # Комбобокс с типами улиц
     ui.comboBox_locality_type_3.addItems(["місто", "СМТ", "село", "селище", "хутір"])  # Комбобокс с типами населенных пунктов
 
     def address_dict_func():  # Словарь со списками названий таблиц, колонок и текущего адреса в комбобоксе для корректного SQL запроса
         address_dict = {
-            "1": ["district_name", "districts", "region_id", "regions", "region_name", ui.comboBox_region_name_3.currentText()],
-            "2": ["locality_name", "localities", "district_id", "districts", "district_name", ui.comboBox_district_name_3.currentText()],
-            "3": ["street_name", "streets", "locality_id", "localities", "locality_name", ui.comboBox_locality_name_3.currentText()],
-            "4": ["house_number", "house_numbers", "streets_id", "streets", "street_name", ui.comboBox_streets_name_3.currentText()],
+            "1": ["district_name", "districts", "region_id", "regions", "region_name", ui.comboBox_region_name_3.currentText().strip()],
+            "2": ["locality_name", "localities", "district_id", "districts", "district_name", ui.comboBox_district_name_3.currentText().strip()],
+            "3": ["street_name", "streets", "locality_id", "localities", "locality_name", ui.comboBox_locality_name_3.currentText().strip()],
+            "4": ["house_number", "house_numbers", "streets_id", "streets", "street_name", ui.comboBox_streets_name_3.currentText().strip()],
         }
         return address_dict
 
@@ -978,20 +1003,20 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
 
     def receive_data_file():  # Присвоение переменных
         fields = {
-            "info": ui.general_chatacteristics_3.toPlainText(),
-            "street": ui.comboBox_streets_name_3.currentText(),
-            "affil": ui.affiliation_3.text(),
-            "mobile": ui.mobile_1_3.text(),
-            "mobile_2": ui.mobile_2_3.text(),
-            "work_ph": ui.work_phone_3.text(),
-            "home_ph": ui.home_phone_3.text(),
-            "house_numb": ui.comboBox_house_number_3.currentText(),
-            "street_t": ui.comboBox_streets_3.currentText(),
-            "manag": ui.manager_3.toPlainText(),
-            "region_name": ui.comboBox_region_name_3.currentText(),
-            "district_name": ui.comboBox_district_name_3.currentText(),
-            "locality_t": ui.comboBox_locality_type_3.currentText(),
-            "locality_name": ui.comboBox_locality_name_3.currentText(),
+            "info": ui.general_chatacteristics_3.toPlainText().strip(),
+            "street": ui.comboBox_streets_name_3.currentText().strip(),
+            "affil": ui.affiliation_3.text().strip(),
+            "mobile": ui.mobile_1_3.text().strip(),
+            "mobile_2": ui.mobile_2_3.text().strip(),
+            "work_ph": ui.work_phone_3.text().strip(),
+            "home_ph": ui.home_phone_3.text().strip(),
+            "house_numb": ui.comboBox_house_number_3.currentText().strip(),
+            "street_t": ui.comboBox_streets_3.currentText().strip(),
+            "manag": ui.manager_3.toPlainText().strip(),
+            "region_name": ui.comboBox_region_name_3.currentText().strip(),
+            "district_name": ui.comboBox_district_name_3.currentText().strip(),
+            "locality_t": ui.comboBox_locality_type_3.currentText().strip(),
+            "locality_name": ui.comboBox_locality_name_3.currentText().strip(),
         }
         return fields
 
@@ -1037,6 +1062,7 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
                     f"""INSERT INTO {address_dict[num][1]}({address_dict[num][0]}, {address_dict[num][2]}) 
                                 VALUES("{new_address.strip()}", "{address_id}")""")
                 db.commit()
+
         """Проверка и внесение всех новых адресов"""
         address_availability_check("1", fields["district_name"])
         address_availability_check("2", fields["locality_name"])
@@ -1077,6 +1103,7 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
             cursor.execute(f"select * from cards where cards_id = {pat_id}")
             result = cursor.fetchall()
 
+            """Проверка на пустое поле общей характеристики и добавление в БД"""
             if fields['info'].strip() != "" and result[0][1].strip() != "":
                 new_info = f"{result[0][1]}\n{fields['info']}"
             elif result[0][1].strip() == "" and fields['info'].strip() != "":
@@ -1125,20 +1152,19 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
         ui.tableWidget_diag_file.setItem(row, 2, QtWidgets.QTableWidgetItem(items[2]))
         ui.tableWidget_diag_file.setItem(row, 3, QtWidgets.QTableWidgetItem(items[3]))
 
-    global entering_additional_information_file
-    def entering_additional_information_file(pat_id):
+    def entering_additional_information_file(pat_id):  # Внесение доп. инфы в карточку
         fields = receive_data_file()
 
         cursor.execute(f"select * from cards where cards_id = {pat_id}")
         result = cursor.fetchall()
 
+        """Проверка на пустое поле общей характеристики и добавление в БД"""
         if fields['info'].strip() != "" and result[0][1].strip() != "":
             new_info = f"{result[0][1]}\n{fields['info']}"
         elif result[0][1].strip() == "" and fields['info'].strip() != "":
             new_info = fields['info']
         else:
             new_info = result[0][1]
-
 
         cursor.execute(
             f"""UPDATE cards SET info='{new_info}' WHERE cards_id={pat_id}""")
@@ -1155,15 +1181,22 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
                 db.commit()
         CardFile.close()
 
+    directory_for_save = file_directory  # Объявление переменной для хранения текущего пути к файлу
+
+    def setting_filename():  # Получение имени файла и установка его на названия окна
+        file_name = directory_for_save.split("/")[-1]
+        if "\\" in file_name:  # Другой способ получения пути к папке
+            file_name = directory_for_save.split("\\")[-1]
+        CardFile.setWindowTitle(f"{file_name}")
+        print(file_name)
+
+    setting_filename()
+
     def save_to_file_Pat_edit():  # Сохранение всей информации в формате json
         fields = receive_data_file()
+        print(directory_for_save)
 
-        if "katalog.exe" in sys.argv[0]:
-            path = sys.argv[0][:-12]
-        else:
-            path = sys.argv[0][:-8]
-
-        with open(f"{path}\\save_cards\\{fields['street_t']} {fields['street']}, {fields['house_numb']}.json", "w") as out_file:
+        with open(f"{directory_for_save}", "w") as out_file:
             table = {}
             if ui.tableWidget_diag_file.rowCount() > 0:
                 for row in range(ui.tableWidget_diag_file.rowCount()):
@@ -1174,17 +1207,50 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
                         ui.tableWidget_diag_file.item(row, 3).text()
                     ]
             json.dump([fields, table], out_file, indent=4, sort_keys=True)
-        CardFile.close()
+        # CardFile.close()
 
-    def field_validation(button):  # Проверка обязательных полей на наличие текста в них
+    def save_as_to_file_Pat_edit():  # Функция выбора новой директории для файла и сохранения в ней
+        nonlocal directory_for_save
+        global old_directory
+        fields = receive_data_file()
+        old_directory = directory_for_save  # Старый путь к файлу
+
+        """Получение пути к папке файла"""
+        folder_directory = "\\".join(old_directory.split("/")[:-1])
+        if folder_directory == "":  # Другой способ получения пути к папке
+            folder_directory = "\\".join(old_directory.split("\\")[:-1])
+
+        """Получение нового пути хранения файла"""
+        directory_for_save = QFileDialog.getSaveFileName(
+            CardFile, "Місце для збереження файлу",
+            f"{folder_directory}\\{fields['street_t']} {fields['street']}, {fields['house_numb']}.json",
+            "Карточки формата json (*.json)")[0]
+
+        if directory_for_save != "":  # Если новый путь получен, то создания нового файла по новому пути и удаление старого файла
+            with open(f"{directory_for_save}", "w") as out_file:
+                table = {}
+                if ui.tableWidget_diag_file.rowCount() > 0:
+                    for row in range(ui.tableWidget_diag_file.rowCount()):
+                        table[str(row)] = [
+                            ui.tableWidget_diag_file.item(row, 0).text(),
+                            ui.tableWidget_diag_file.item(row, 1).text(),
+                            ui.tableWidget_diag_file.item(row, 2).text(),
+                            ui.tableWidget_diag_file.item(row, 3).text()
+                        ]
+                json.dump([fields, table], out_file, indent=4, sort_keys=True)
+
+            setting_filename()  # Установка нового имени файла на окно программы
+
+            os.remove(old_directory)  # Удаление файла по старому пути
+        else:
+            directory_for_save = old_directory
+
+    def field_validation():  # Проверка обязательных полей на наличие текста в них
         check_lst = []
         def check(combobox, error):
             if combobox.currentText().strip() == "":
                 error.setText("Заповніть поле!")
-                if button == 1:
-                    ui.error_save.setText("Заповніть поля!")
-                else:
-                    ui.error_save_file.setText("Заповніть поля!")
+                ui.error_save.setText("Заповніть поля!")
                 check_lst.append(False)
             else:
                 check_lst.append(True)
@@ -1196,11 +1262,7 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
         check(ui.comboBox_house_number_3, ui.error_house_numb)
 
         if all(check_lst):
-            if button == 1:
-                checking_the_address_for_availability()  # Добавление доп информации в уже существующую карточку
-            else:
-                save_to_file_Pat_edit()  # Сохранение карточки в виде файла в папке save_cards
-            clear_fields()
+            checking_the_address_for_availability()  # Добавление доп информации в уже существующую карточку
 
     def checking_the_address_for_availability():  # Проверка при попытке добавить новую карточку, адреса, существует ли уже карточка по такому же адресу
         fields = receive_data_file()
@@ -1217,18 +1279,24 @@ def otherWindow_3(file_data):  # Окно для просмотра файлов
         print(all_existing_addresses)
 
         if current_address in all_existing_addresses:  # Если карточка с таким адресом уже существует, то вызывается окно предупреждения, если нет то карточка просто добавляеться в картотеку
-            id = all_existing_addresses[current_address]
-            print(id)
-            error_window(
-                f"Картка по цій адресі вже існує у картотеці! Її номер - {id}.\nЗагальна характеристика і діагнози додадуться в неї.", 3, id)
+            card_id = all_existing_addresses[current_address]
+            print(card_id)
+            msgBox = QMessageBox().warning(
+                CardFile, "Попередження!",
+                f"Картка по цій адресі вже існує у картотеці! Її номер - {card_id}.\nЗагальна характеристика і діагнози додадуться в неї.",
+                QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            print(msgBox)
+            if msgBox == 1024:
+                entering_additional_information_file(card_id)
         else:
             savePat_file()
 
-    ui.save_fileButton.clicked.connect(lambda sh, button=2: field_validation(button))  # Кнопка сохранения карточки в виде файла
+    ui.save_as_fileButton.clicked.connect(save_as_to_file_Pat_edit)  # Кнопка выбора места сохранения файла
+    ui.save_fileButton.clicked.connect(save_to_file_Pat_edit)  # Кнопка сохранения карточки в виде файла
     ui.tableWidget_diag_file.doubleClicked.connect(load_row_index)  # Открытие окна ред. диагноза на двойное нажатие на ячейку таблицы
     ui.del_from_diag_Button_2.clicked.connect(del_row)  # Кнопка удаления строки
     ui.add_to_diag_Button_3.clicked.connect(lambda sh, window=3: add_new_diagnosis(window))  # Кнопка добавления новой строки в табл. диагнозов
-    ui.saveButton_3.clicked.connect(lambda sh, button=1: field_validation(button))  # Кнопка сохранения карточки в картотеку
+    ui.saveButton_3.clicked.connect(field_validation)  # Кнопка сохранения карточки в картотеку
     ui.add_to_cardButton.clicked.connect(add_info_to_card)  # Кнопка добавления доп. информации в выбраную карточку
 
 
@@ -1403,7 +1471,7 @@ def address_lists():
     def update_row():  # Запись id измененной строки и сам измененный текст в словарь
         id = ui.tableWidget.item(ui.tableWidget.currentRow(), 1).text()
         if id != "":
-            updated_rows[id] = ui.tableWidget.item(ui.tableWidget.currentRow(), 0).text()
+            updated_rows[id] = ui.tableWidget.item(ui.tableWidget.currentRow(), 0).text().strip()
 
     def save_changes():  # Обновление, сохранение и удаление данных в БД
         ui.address_lookup.setEnabled(True)
@@ -1428,7 +1496,7 @@ def address_lists():
         if current_address == "Regions":  # SQL запрос на добавление новых строк в БД, если мы на странице областей
             for row in range(old_row_count, ui.tableWidget.rowCount()):
                 cursor.execute(f"""INSERT INTO {table}({column})
-                                                VALUES("{ui.tableWidget.item(row, 0).text()}")""")
+                                                VALUES("{ui.tableWidget.item(row, 0).text().strip()}")""")
                 db.commit()
         else:  # SQL запрос на добавление новых строк в БД, если мы не на странице областей
             l_address = branch[current_address]["last_step"]
@@ -1436,7 +1504,7 @@ def address_lists():
 
             for row in range(old_row_count, ui.tableWidget.rowCount()):
                 cursor.execute(f"""INSERT INTO {table}({column}, {f_key_column})
-                                                VALUES("{ui.tableWidget.item(row, 0).text()}",
+                                                VALUES("{ui.tableWidget.item(row, 0).text().strip()}",
                                                 "{branch[current_address]["f_key"]}")""")
                 db.commit()
 
@@ -1481,7 +1549,9 @@ def address_lists():
                         f"select * from {table} where {colum_f_key}='{f_key}'")
                     result = cursor.fetchall()
                     if result:  # Если есть, то вызов окна предупреждения
-                        error_window(f"Помилка: в даній адресі є вкладені адреси, \nвидаліть їх спочатку", 1)
+                        msgBox = QMessageBox().warning(
+                            Address_listsWindow, "Попередження!",
+                            "В даній адресі є вкладені адреси, \nвидаліть їх спочатку", QMessageBox.StandardButton.Ok)
                     else:  # Если нет, то удаления из базы данных
                         ui.tableWidget.item(row, 0).setBackground(QtGui.QColor(192, 192, 192))
                         deleted_rows.add(ui.tableWidget.item(row, 1).text())
@@ -1508,40 +1578,14 @@ def address_lists():
     ui.returnButton.clicked.connect(lambda sh, id=None, ret=True: addressTable(id, ret))  # Кнопка возвращения на пред. шаг
     ui.tableWidget.doubleClicked.connect(load_index)  # Переход на список след. тип адреса выбраного адреса двойным нажатием мышки
 
-
-def error_window(text, error_type, id=""):
-    global errorWindow
-    errorWindow = QtWidgets.QDialog()
-    ui = Ui_errorWindow()
-    ui.setupUi(errorWindow)
-    errorWindow.show()
-
-    ui.label.setText(text)
-
-    def close_window():
-        if error_type == 1:
-            errorWindow.close()
-        elif error_type == 2:
-            entering_additional_information(id)
-            errorWindow.close()
-        elif error_type == 3:
-            entering_additional_information_file(id)
-            errorWindow.close()
-        elif error_type == 4:
-            deleting_patients_diagnosis()
-            errorWindow.close()
-        else:
-            errorWindow.close()
-
-    ui.pushButton.clicked.connect(close_window)
-
-
 def katalog():  # Главная окно со списком карточек
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
+
+    app.setWindowIcon(QtGui.QIcon('books.ico'))
 
     def updateTable(sql_search=False):  # таблица со списком карточек пациентов
         if not sql_search:
@@ -1582,15 +1626,32 @@ def katalog():  # Главная окно со списком карточек
     updateTable()
 
     def load_info_from_file():  # Загрузка из файла типа json всех данных и добавление их в ячейки
-        fname = QFileDialog().getOpenFileName(MainWindow, "Open", "save_cards", "Карточки формата json (*.json)")
+        fname = QFileDialog.getOpenFileName(MainWindow, "Open", "save_cards", "Карточки формата json (*.json)")
+
+        print(fname)
 
         if fname[0]:
             with open(f"{fname[0]}", "r") as out_file:
                 data = json.load(out_file)
-                otherWindow_3(data)
+                otherWindow_3(data, fname[0])
+
+    ui.error_card_id.setText("")
+
+    def direct_opening():  # Функция открытия карточки напрямую вводя ёё номер
+        cursor.execute("SELECT cards_id FROM cards")
+        result = cursor.fetchall()
+
+        id_count = len(result)
+        card_id = ui.spinBox.text()
+        if int(card_id) <= id_count:
+            otherWindow_2(card_id)
+            ui.error_card_id.setText("")
+        else:
+            ui.error_card_id.setText("Такої картки нема!")
 
     ui.tableWidget.verticalHeader().setVisible(False)  # Отключение нумерации таблицы
-    ui.tableWidget.setEditTriggers(QTableWidget.NoEditTriggers)  # Отключение редакта ячеек таблицы
+    ui.tableWidget.setEditTriggers(QTableWidget.NoEditTriggers)  # Отключение редактирования ячеек таблицы
+    ui.openButton.clicked.connect(direct_opening)  # Кнопка для прямого открытия карточки через ввод ёё номера
     ui.address_listsButton.clicked.connect(address_lists)  # Кнопка для просмотра адрес сов
     ui.view_fileButton.clicked.connect(load_info_from_file)  # Кнопка для просмотра файла
     ui.sortButton.clicked.connect(sort_table)  # Кнопка сортировки столбцов
@@ -1603,23 +1664,22 @@ def katalog():  # Главная окно со списком карточек
 
 if __name__ == '__main__':
 
-    if "katalog.exe" in sys.argv[0]:
-        path = sys.argv[0][:-12]
-    else:
-        path = sys.argv[0][:-8]
+    path = "\\".join(sys.argv[0].split("/")[:-1])  # Получение директории хранения программы
+    print(path)
+    if path == "":  # Другой способ получения директории
+        path = "\\".join(sys.argv[0].split("\\")[:-1])
 
-    # path = "\\".join(sys.argv[0].split("\\")[:-1])
-
-    with closing(sqlite3.connect(f"{path}\\data_bases\\data.db")) as db:
+    with closing(sqlite3.connect(f"{path}\\data_bases\\data.db")) as db:  # Подключение к базе данных
         cursor = db.cursor()
 
-        if len(sys.argv) > 1:
+        if len(sys.argv) > 1:  # Открытие программы через файл
             file = sys.argv[1]
-
+            app = QtWidgets.QApplication(sys.argv)
+            app.setWindowIcon(QtGui.QIcon(f"{path}\\books.ico"))
             with open(f"{file}", "r") as out_file:
                 data = json.load(out_file)
-                app = QtWidgets.QApplication(sys.argv)
-                otherWindow_3(data)
-                sys.exit(app.exec())
-        else:
+                otherWindow_3(data, file)
+
+            sys.exit(app.exec())
+        else:  # Открытие программы через экзешник
             katalog()

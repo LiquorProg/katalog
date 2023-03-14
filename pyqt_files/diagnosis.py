@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog_add_diag(object):
     def setupUi(self, Dialog_add_diag):
         Dialog_add_diag.setObjectName("Dialog_add_diag")
-        Dialog_add_diag.resize(500, 218)
+        Dialog_add_diag.resize(541, 238)
         Dialog_add_diag.setMinimumSize(QtCore.QSize(0, 0))
         self.formLayout_2 = QtWidgets.QFormLayout(Dialog_add_diag)
         self.formLayout_2.setObjectName("formLayout_2")
@@ -58,10 +58,11 @@ class Ui_Dialog_add_diag(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.patient_add_diag.sizePolicy().hasHeightForWidth())
         self.patient_add_diag.setSizePolicy(sizePolicy)
+        self.patient_add_diag.setMinimumSize(QtCore.QSize(200, 0))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.patient_add_diag.setFont(font)
-        self.patient_add_diag.setMaxLength(20)
+        self.patient_add_diag.setMaxLength(30)
         self.patient_add_diag.setObjectName("patient_add_diag")
         self.gridLayout.addWidget(self.patient_add_diag, 2, 1, 1, 1)
         self.dateEdit_add_diag = QtWidgets.QDateEdit(Dialog_add_diag)
