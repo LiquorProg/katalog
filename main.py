@@ -17,7 +17,6 @@ from pyqt_files.diagnosis import Ui_Dialog_add_diag
 from pyqt_files.diagnosis_view import Ui_Dialog_view_diag
 from pyqt_files.photo import Ui_photo
 from pyqt_files.address_lists import Ui_Address_listsWindow
-from pyqt_files.error_window import Ui_errorWindow
 from datetime import datetime
 
 
@@ -1595,7 +1594,7 @@ def katalog():  # Главная окно со списком карточек
         else:
             """SQL запрос с фильтрами"""
             cursor.execute(
-                f"""SELECT cards_id, region, district, locality, street_type, street, house_numb FROM cards join diagnoses using(cards_id)
+                f"""SELECT cards_id, region, district, locality, street_type, street, house_numb FROM cards inner join diagnoses using(cards_id)
                                 WHERE street LIKE '%{ui.search_street.text()}%' AND house_numb LIKE '%{ui.search_house.text()}%' 
                                 AND patient_name LIKE '%{ui.search_patient.text()}%' AND manager LIKE '%{ui.search_manager.text()}%'
                                 GROUP BY cards_id""")
