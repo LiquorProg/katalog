@@ -1,0 +1,15 @@
+C:/Users/sasha/PycharmProjects/test_proj/save_cards/Шаблон.json - old_directory
+C:\Users\sasha\PycharmProjects\test_proj\save_cards - folder_directory
+
+C:/Users/sasha/PycharmProjects/test_proj/save_cards/вулиця Миколи Борецького, 32.json - old_directory
+C:\Users\sasha\PycharmProjects\test_proj\save_cards - folder_directory
+
+C:/Users/sasha/PycharmProjects/test_proj/save_cards/вулиця Миколи Борецького, 2.json - old_directory
+C:\Users\sasha\PycharmProjects\test_proj\save_cards - folder_directory
+
+C:/Users/sasha/PycharmProjects/test_proj/save_cards/вулиця Будівельна, 22.json - old_directory
+C:\Users\sasha\PycharmProjects\test_proj\save_cards - folder_directory
+
+C:/Users/sasha/PycharmProjects/test_proj/save_cards/вулиця Будівельна, 1.json - old_directory
+C:\Users\sasha\PycharmProjects\test_proj\save_cards - folder_directory
+

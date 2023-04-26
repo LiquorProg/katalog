@@ -1,0 +1,29 @@
+[
+    {
+        "affil": "gdrg",
+        "home_ph": "6153",
+        "house_numb": "7",
+        "info": "sfasfsdzfsd",
+        "manag": "dfgfd",
+        "mobile": "4648648",
+        "mobile_2": "3816",
+        "name": "Patient4",
+        "street": "rsdgdr",
+        "street_t": "\u0432\u0443\u043b\u0438\u0446\u044f",
+        "work_ph": "3432"
+    },
+    {
+        "0": [
+            "04.03.2022",
+            "45",
+            "Patient4",
+            "gsfgdfgdf"
+        ],
+        "1": [
+            "03.05.2022",
+            "45",
+            "Patient4",
+            "dsadasd"
+        ]
+    }
+]
