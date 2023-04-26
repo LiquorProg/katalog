@@ -11,7 +11,7 @@
 ## About
 
 This program is an electronic medical record system. It allows users to create, view, edit, save as json files, and import medical records (more details on functionality are described in the [documentation](Documentation(UA).pdf) in Ukrainian). 
-It was developed on demand, so some features may seem specific. For example, the medical records created in this program belong not to a single patient, but to a whole household, and all the diagnoses of the patients living in one household are stored in a single record. 
+It was designed to order, so some features may seem specific. For example, the medical records created in this program belong not to a single patient, but to a whole household, and all the diagnoses of the patients living in one household are stored in a single record. 
 To launch the katalog as a separate program, you need to go to the [outputs](outputs) folder and select the folder with the latest version of the program, where you will find an .exe file (more details are described in the [documentation](Documentation(UA).pdf) in Ukrainian).
 
 ## Documentation
